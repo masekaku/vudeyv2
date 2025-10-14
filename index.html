@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EduStream Dashboard</title>
+
+  <!-- Font & Tailwind -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+  <!-- Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
+  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- AOS Animation -->
+  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/style.css">
+</head>
+<body class="flex flex-col min-h-screen bg-[#fafaf9] text-[#111] font-[Poppins]">
+  <header class="bg-white shadow-sm p-4">
+    <div class="container mx-auto flex items-center justify-between">
+      <h1 class="text-2xl font-extrabold">EduStream.co</h1>
+      <nav class="hidden lg:flex gap-3">
+        <a href="#" class="nav-link">Home</a>
+        <a href="#" class="nav-link">Kelas</a>
+        <a href="#" class="nav-link">Tentang</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="flex-grow p-4 container mx-auto">
+    <div class="max-w-6xl mx-auto">
+      <!-- Pencarian -->
+      <input id="searchInput" type="text" placeholder="Cari video..." 
+             class="w-full border-2 border-black rounded-xl p-3 mb-5 focus:outline-none focus:ring-2 focus:ring-yellow-400">
+
+      <!-- Grid video -->
+      <div id="videoGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+      <!-- Tombol Load More -->
+      <div class="text-center mt-6">
+        <button id="loadMoreBtn" class="px-6 py-3 bg-yellow-300 border-2 border-black rounded-xl font-bold hidden hover:-translate-y-1 hover:shadow-lg transition">
+          Tampilkan Lebih Banyak
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer class="bg-white border-t mt-8 py-4 text-center text-sm text-gray-600">
+    © 2025 EduStream.co — Dibuat untuk pembelajaran
+  </footer>
+
+  <script src="assets/script.js"></script>
+  <script>
+    AOS.init({
+      duration: 600,
+      easing: "ease-out-cubic",
+      once: false
+    });
+  </script>
+</body>
+</html>
