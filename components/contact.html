@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Contact — THE ARTIFACT VIDEY</title>
+  <link href="../assets/css/style.css" rel="stylesheet">
+</head>
+<body>
+  <div class="container" style="padding-top:28px">
+    <h1 style="color:var(--neon-green)">Contact</h1>
+    <p>Have a question or want to suggest an artifact? Use the form below or email us.</p>
+
+    <form id="contactForm" style="max-width:640px">
+      <label>Name<br/><input type="text" name="name" style="width:100%;padding:8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-color)"></label>
+      <label style="display:block;margin-top:8px">Email<br/><input type="email" name="email" style="width:100%;padding:8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-color)"></label>
+      <label style="display:block;margin-top:8px">Message<br/><textarea name="message" rows="6" style="width:100%;padding:8px;border-radius:6px;background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text-color)"></textarea></label>
+      <div style="margin-top:10px">
+        <button type="submit" class="btn">Send</button>
+      </div>
+    </form>
+
+    <script>
+      document.getElementById('contactForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        alert('Thank you — this demo form does not send messages. Please email contact@artifactvidey.example');
+      });
+    </script>
+
+    <p style="margin-top:30px"><a href="../index.html">← Back to Home</a></p>
+  </div>
+</body>
+</html>
