@@ -1,27 +1,14 @@
-// Configuration and Constants
-const CONFIG = {
-    itemsPerPage: 5,
-    adFrequency: 5,
-    maxHistoryItems: 5,
-    offlineMessage: "Offline Mode: Restricted Access"
-};
+/* config.js - configuration constants */
 
-// Analytics Configuration (Replace with your actual IDs)
-const ANALYTICS_CONFIG = {
-    gaId: 'G-XXXXXXX',
-    histatsId: 'XXXXXXX',
-    disqusShortname: 'YOUR-SHORTNAME'
+window.APP_CONFIG = {
+  BASE_URL: 'BASE_URL', // replace with production URL for sitemap generation
+  PAGE_SIZE: 5,
+  ARTIFACTS_JSON: '/artifacts.json',
+  GA_MEASUREMENT_ID: 'G-XXXXXXXXXX', // replace with actual ID
+  HISTATS_ID: '00000', // replace with Histats ID
+  DISQUS_SHORTNAME: 'your-disqus-shortname', // replace with actual shortname
+  FIELD_MAP: { id: 'i', title: 't', thumbnail: 'm', link: 'l' },
+  CACHE_VERSION: 'artifact-v1',
+  LOCALSTORAGE_CLICK_KEY: 'artifact_clicks',
+  LOCALSTORAGE_HISTORY_KEY: 'artifact_history'
 };
-
-// Field mapping for obfuscated JSON keys
-const FIELD_MAP = {
-    'i': 'id',
-    't': 'title',
-    'm': 'thumbnail',
-    'l': 'external_link'
-};
-
-// Export for use in other modules
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { CONFIG, ANALYTICS_CONFIG, FIELD_MAP };
-}
