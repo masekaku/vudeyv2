@@ -1,198 +1,166 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Artifact: Classified and Forbidden Archive</title>
-    <meta name="description" content="Classified video archive - Access Level: Restricted">
     
-    <!-- PWA Configuration -->
-    <meta name="theme-color" content="#0f0f23"/>
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- Third-Party Resources -->
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts (Terminal Style) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
-    <!-- Plyr.js -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <!-- AOS Animation -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <!-- Howler.js -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-    
-    <!-- Custom Styles -->
+    <!-- Third-party CDN Resources -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
     <link rel="stylesheet" href="styles/main.css">
+    
+    <!-- Embedded PWA Manifest -->
+    <link rel="manifest" id="app-manifest">
 </head>
-<body class="bg-gray-900 text-gray-200">
+<body class="bg-gray-900 text-green-400 font-mono">
     <!-- Offline Banner -->
-    <div id="offlineBanner" class="offline-banner hidden">
-        <span>Offline Mode: Restricted Access</span>
+    <div class="offline-banner" id="offlineBanner">
+        <span class="font-bold">OFFLINE MODE: RESTRICTED ACCESS</span>
     </div>
-
+    
     <!-- Toast Notifications -->
-    <div id="toastContainer"></div>
-
+    <div class="toast" id="toast"></div>
+    
     <!-- Header -->
-    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
-        <div class="container mx-auto px-3 sm:px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
-                <h1 class="text-lg sm:text-xl terminal-font glitch-effect" data-text="THE ARTIFACT">THE ARTIFACT</h1>
-            </div>
-            <div class="flex items-center space-x-2 sm:space-x-4 header-controls">
-                <button id="themeToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Toggle theme">
-                    <i data-lucide="moon" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
-                    <i data-lucide="sun" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+    <header class="terminal-border bg-black p-4 mb-6">
+        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+            <h1 class="text-2xl md:text-3xl font-bold glitch-effect" data-text="THE ARTIFACT: CLASSIFIED AND FORBIDDEN ARCHIVE">
+                THE ARTIFACT: CLASSIFIED AND FORBIDDEN ARCHIVE
+            </h1>
+            <div class="flex items-center space-x-4 mt-4 md:mt-0">
+                <button id="audioToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
+                    <i data-lucide="volume-2" class="w-5 h-5"></i>
+                    <span>Audio: ON</span>
                 </button>
-                <button id="audioToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Toggle audio">
-                    <i data-lucide="volume2" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
-                    <i data-lucide="volume-x" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+                <button id="themeToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
+                    <i data-lucide="moon" class="w-5 h-5"></i>
+                    <span>Dark Mode</span>
                 </button>
-                <button id="settingsToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Settings">
-                    <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                <button id="qualityToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
+                    <i data-lucide="settings" class="w-5 h-5"></i>
+                    <span>Quality: Low Res</span>
                 </button>
             </div>
         </div>
     </header>
-
-    <!-- Main Content -->
-    <main class="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-        <!-- Player Section -->
-        <section id="playerSection" class="mb-6 sm:mb-8 hidden">
-            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-                <div class="relative">
-                    <div class="plyr__video-wrapper">
-                        <video id="player" playsinline controls>
-                            <!-- Video source will be set dynamically -->
-                        </video>
-                    </div>
-                    <div id="corruptionOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-500">
-                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent animate-pulse"></div>
-                    </div>
-                </div>
-                <div class="p-3 sm:p-4">
-                    <div class="flex justify-between items-start mb-3 sm:mb-4">
-                        <div class="video-info flex-1 mr-2">
-                            <h2 id="videoTitle" class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 line-clamp-2"></h2>
-                            <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 video-meta">
-                                <span id="videoCategory" class="px-2 py-1 bg-gray-700 rounded text-xs sm:text-sm"></span>
-                                <span id="videoRisk" class="px-2 py-1 rounded text-xs sm:text-sm"></span>
-                                <span id="videoSource" class="px-2 py-1 bg-gray-700 rounded text-xs sm:text-sm"></span>
-                            </div>
-                        </div>
-                        <div class="flex space-x-1 sm:space-x-2">
-                            <button id="favoriteBtn" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Add to favorites">
-                                <i data-lucide="heart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            </button>
-                            <button id="downloadBtn" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Download video">
-                                <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <p id="videoDescription" class="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4 line-clamp-3"></p>
-                    <div class="flex flex-col sm:flex-row justify-between gap-2 player-controls">
-                        <div class="flex space-x-2">
-                            <button id="prevVideo" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors flex items-center text-sm sm:text-base">
-                                <i data-lucide="skip-back" class="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5"></i> Previous
-                            </button>
-                            <button id="nextVideo" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors flex items-center text-sm sm:text-base">
-                                Next <i data-lucide="skip-forward" class="ml-1 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5"></i>
-                            </button>
-                        </div>
-                        <div class="flex space-x-2">
-                            <button id="playbackRateBtn" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors text-sm sm:text-base">
-                                Speed: 1x
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
+    
+    <main class="container mx-auto px-4">
         <!-- Search and Filter -->
-        <section class="mb-6 sm:mb-8">
-            <div class="bg-gray-800 rounded-lg p-3 sm:p-4 shadow-lg">
-                <div class="flex flex-col gap-3 sm:gap-4 filter-section">
-                    <div class="flex-1">
-                        <input type="text" id="searchInput" placeholder="Search protocol matrix..." 
-                               class="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
-                    </div>
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <select id="categoryFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
-                            <option value="">All Categories</option>
-                        </select>
-                        <select id="riskFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
-                            <option value="">All Risk Levels</option>
-                            <option value="Caution">Caution</option>
-                            <option value="High Alert">High Alert</option>
-                            <option value="Critical">Critical</option>
-                        </select>
-                        <select id="sourceFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
-                            <option value="">All Sources</option>
-                        </select>
-                    </div>
-                </div>
+        <section class="mb-8 terminal-border p-4 bg-black">
+            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                <input type="text" id="searchInput" placeholder="PROTOCOL MATRIX SEARCH..." 
+                       class="flex-grow p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                <select id="categoryFilter" class="p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">ALL CATEGORIES</option>
+                    <option value="anomalous">ANOMALOUS</option>
+                    <option value="extraterrestrial">EXTRATERRESTRIAL</option>
+                    <option value="paranormal">PARANORMAL</option>
+                    <option value="cryptid">CRYPTID</option>
+                    <option value="government">GOVERNMENT</option>
+                </select>
+                <select id="riskFilter" class="p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="">ALL RISK LEVELS</option>
+                    <option value="high">HIGH RISK</option>
+                    <option value="medium">MEDIUM RISK</option>
+                    <option value="low">LOW RISK</option>
+                </select>
             </div>
         </section>
-
-        <!-- Video Grid -->
-        <section id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            <!-- Videos will be populated here -->
-        </section>
-
-        <!-- Settings Modal -->
-        <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden px-3 sm:px-4">
-            <div class="bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md settings-modal">
-                <div class="flex justify-between items-center mb-3 sm:mb-4">
-                    <h3 class="text-lg sm:text-xl font-bold">System Settings</h3>
-                    <button id="closeSettings" class="p-2 rounded hover:bg-gray-700 transition-colors">
-                        <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+        
+        <!-- Video Player Section -->
+        <section class="mb-8 terminal-border p-4 bg-black" id="playerSection" style="display: none;">
+            <div class="mb-4 flex justify-between items-center">
+                <h2 id="videoTitle" class="text-xl font-bold"></h2>
+                <div class="flex space-x-2">
+                    <button id="prevVideo" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
+                        <i data-lucide="skip-back" class="w-4 h-4 mr-2"></i> PREV
+                    </button>
+                    <button id="nextVideo" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
+                        NEXT <i data-lucide="skip-forward" class="w-4 h-4 ml-2"></i>
                     </button>
                 </div>
-                <div class="space-y-3 sm:space-y-4">
-                    <div>
-                        <label class="block mb-1 sm:mb-2 text-sm sm:text-base">Data Quality</label>
-                        <select id="dataQuality" class="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
-                            <option value="low">Low Res (Stable)</option>
-                            <option value="raw">Raw Feed (Unstable)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="flex items-center text-sm sm:text-base">
-                            <input type="checkbox" id="autoPlay" class="mr-2 w-4 h-4 sm:w-5 sm:h-5">
-                            <span>Auto-play next video</span>
-                        </label>
-                    </div>
-                    <div>
-                        <button id="clearHistory" class="w-full px-3 sm:px-4 py-2 bg-red-700 rounded hover:bg-red-600 transition-colors text-sm sm:text-base">
-                            Clear Watch History
-                        </button>
-                    </div>
+            </div>
+            
+            <div class="relative">
+                <video id="player" controls crossorigin playsinline></video>
+                <div class="mt-4 flex flex-wrap gap-2">
+                    <button id="favoriteBtn" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
+                        <i data-lucide="heart" class="w-4 h-4 mr-2"></i> <span>ADD TO FAVORITES</span>
+                    </button>
+                    <button id="downloadBtn" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
+                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> <span>EXTRACT DATA</span>
+                    </button>
                 </div>
             </div>
-        </div>
+            
+            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-3 bg-gray-800 rounded">
+                    <h3 class="font-bold mb-2">CLASSIFICATION</h3>
+                    <p id="videoCategory" class="text-sm"></p>
+                </div>
+                <div class="p-3 bg-gray-800 rounded">
+                    <h3 class="font-bold mb-2">RISK LEVEL</h3>
+                    <p id="videoRisk" class="text-sm"></p>
+                </div>
+                <div class="p-3 bg-gray-800 rounded">
+                    <h3 class="font-bold mb-2">DATA SOURCE</h3>
+                    <p id="videoSource" class="text-sm"></p>
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <h3 class="font-bold mb-2">DESCRIPTION</h3>
+                <p id="videoDescription" class="text-sm"></p>
+            </div>
+            
+            <!-- Disqus Comments -->
+            <div class="mt-8">
+                <h3 class="font-bold mb-4">DECLASSIFIED COMMENTS</h3>
+                <div id="disqus_thread"></div>
+            </div>
+        </section>
+        
+        <!-- Video Grid -->
+        <section class="mb-8">
+            <h2 class="text-xl font-bold mb-4 glitch-effect" data-text="CLASSIFIED FOOTAGE">CLASSIFIED FOOTAGE</h2>
+            <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Videos will be loaded here -->
+            </div>
+            
+            <!-- Ad Slot -->
+            <div id="adSlot1" class="ad-slot">
+                AD SLOT: 300x250
+            </div>
+            
+            <!-- Load More Button -->
+            <div class="text-center mt-8">
+                <button id="loadMore" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded terminal-border">
+                    LOAD MORE CLASSIFIED DATA
+                </button>
+            </div>
+        </section>
     </main>
-
+    
     <!-- Footer -->
-    <footer class="bg-gray-800 border-t border-gray-700 mt-8 sm:mt-12 py-4 sm:py-6">
-        <div class="container mx-auto px-3 sm:px-4 text-center text-gray-400 text-xs sm:text-sm">
-            <p>THE ARTIFACT: CLASSIFIED AND FORBIDDEN ARCHIVE</p>
-            <p class="mt-1 sm:mt-2">Access Level: <span class="text-red-400">RESTRICTED</span> | Content suitable for audiences 17+</p>
-            <p class="mt-1 sm:mt-2">All data extraction and viewing is logged and monitored.</p>
+    <footer class="terminal-border bg-black p-6 mt-8">
+        <div class="container mx-auto text-center">
+            <p class="mb-4">ACCESS LEVEL: CLASSIFIED | CLEARANCE: FORBIDDEN</p>
+            <p>© 2023 THE ARTIFACT ARCHIVE. UNAUTHORIZED ACCESS IS PROHIBITED.</p>
         </div>
     </footer>
 
-    <!-- Scripts -->
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <!-- Third-party Scripts -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
     
     <!-- Application Scripts -->
-    <script type="module" src="scripts/app.js"></script>
+    <script src="scripts/video-data.js"></script>
+    <script src="scripts/app.js"></script>
+    <script src="scripts/service-worker.js"></script>
 </body>
 </html>
