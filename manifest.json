@@ -1,21 +1,15 @@
 {
-    "name": "The Artifact: Classified Archive",
+    "name": "The Artifact Archive",
     "short_name": "ArtifactArchive",
-    "description": "Classified and Forbidden Video Archive",
-    "start_url": "./",
+    "description": "Classified and Forbidden Artifact Repository",
+    "start_url": ".",
     "display": "standalone",
-    "background_color": "#0f0f23",
-    "theme_color": "#0f0f23",
-    "orientation": "portrait-primary",
+    "theme_color": "#00ff00",
+    "background_color": "#000000",
     "icons": [
         {
-            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiBmaWxsPSIjMGYwZjIzIi8+CjxyZWN0IHg9IjY0IiB5PSI2NCIgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiBmaWxsPSIjMDBmZjQxIi8+CjxyZWN0IHg9IjcwIiB5PSI3MCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjUyIiBmaWxsPSIjMGYwZjIzIi8+CjxyZWN0IHg9Ijc2IiB5PSI3NiIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBmaWxsPSIjZmYwMDNjIi8+Cjwvc3ZnPgo=",
+            "src": "assets/icons/favicon.svg",
             "sizes": "192x192",
-            "type": "image/svg+xml"
-        },
-        {
-            "src": "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI1MTIiIGhlaWdodD0iNTEyIiBmaWxsPSIjMGYwZjIzIi8+CjxyZWN0IHg9IjE3MCIgeT0iMTcwIiB3aWR0aD0iMTcyIiBoZWlnaHQ9IjE3MiIgZmlsbD0iIzAwZmY0MSIvPgo8cmVjdCB4PSIxODYiIHk9IjE4NiIgd2lkdGg9IjE0NCIgaGVpZ2h0PSIxNDQiIGZpbGw9IiMwZjBmMjMiLz4KPHJlY3QgeD0iMjAyIiB5PSIyMDIiIHdpZHRoPSIxMDgiIGhlaWdodD0iMTA4IiBmaWxsPSIjZmYwMDNjIi8+Cjwvc3ZnPgo=",
-            "sizes": "512x512",
             "type": "image/svg+xml"
         }
     ]
