@@ -5,7 +5,7 @@ window.APP_CONFIG = {
   PAGE_SIZE: 5,
   ARTIFACTS_JSON: '/artifacts.json',
   GA_MEASUREMENT_ID: 'G-XXXXXXXXXX', // replace with actual ID
-  HISTATS_ID: '00000', // replace with Histats ID
+  HISTATS_ID: '1,4984384,4,5,172,25,00011111', // replace with Histats ID
   DISQUS_SHORTNAME: 'your-disqus-shortname', // replace with actual shortname
   FIELD_MAP: { id: 'i', title: 't', thumbnail: 'm', link: 'l' },
   CACHE_VERSION: 'artifact-v1',
