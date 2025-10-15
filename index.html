@@ -1,149 +1,131 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="The Artifact Videy – exclusive access directory to curated external video archives." />
-    <meta name="keywords" content="Artifact Videy, curated videos, cinematic archive, curated directory" />
-    <meta name="robots" content="index, follow" />
-    <title>THE ARTIFACT VIDEY | Curated Video Directory</title>
-    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="theme-color" content="#00ffcc" />
+  <meta name="description" content="THE ARTIFACT VIDEY — curated directory of videos and artifacts. Terminal-style UI, PWA-ready, searchable, paginated." />
+  <meta name="keywords" content="artifact, video directory, curated videos, THE ARTIFACT VIDEY" />
+  <meta property="og:title" content="THE ARTIFACT VIDEY | Curated Video Directory" />
+  <meta property="og:description" content="Curated video directory — terminal-styled, PWA-enabled, searchable & paginated." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/icons/icon-512.png" />
+  <title>THE ARTIFACT VIDEY | Curated Video Directory</title>
 
-    <!-- Tailwind (CDN) -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              base: '#faf7f0',
-              surface: '#ffffff',
-              text: '#111827',
-              accent: '#1e293b',
-              border: '#e5e7eb',
-              warning: '#f87171',
-            },
-            fontFamily: {
-              inter: ['Inter', 'sans-serif'],
-            },
-          },
-        },
-      };
-    </script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <!-- Fonts & CDN (Tailwind used only for base utility + convenience) -->
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Optional: AOS CSS -->
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
-  </head>
+  <!-- Tailwind CDN (play CDN for static) -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-  <body class="bg-base text-text font-inter min-h-screen flex flex-col">
-    <!-- Offline Overlay -->
-    <div class="offline-overlay hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
-      <div class="bg-surface rounded-xl p-6 max-w-sm text-center shadow-lg border border-border">
-        <h2 class="text-lg font-semibold">⚠ Offline Mode: Restricted Access</h2>
-        <p class="text-sm text-gray-600 mt-2">Limited functionality available</p>
+  <!-- AOS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/lucide-static@0.0.0/dist/lucide.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="assets/css/style.css">
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="assets/icons/icon-192.png" />
+
+  <!-- Robots / sitemap hint -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="sitemap.xml" />
+
+</head>
+<body class="app-root">
+
+  <!-- Header -->
+  <header class="header" role="banner">
+    <div class="container header-inner">
+      <div class="brand">
+        <h1 class="site-title">THE ARTIFACT VIDEY</h1>
+        <p class="site-sub">Curated Video Directory</p>
+      </div>
+
+      <nav class="top-actions" aria-label="Top Actions">
+        <button id="toggle-theme" class="btn ghost" title="Toggle theme">⌗</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="container main-content" role="main">
+    <!-- Search -->
+    <section class="search-wrap" aria-label="Search artifacts">
+      <label for="search" class="sr-only">Search artifacts</label>
+      <div class="search-field">
+        <input id="search" type="search" placeholder="Search by title or ID..." autocomplete="off" />
+        <button id="clear-search" class="btn ghost small">Clear</button>
+      </div>
+      <div class="meta-row">
+        <div id="page-counter" class="page-counter">Page 1 of 1</div>
+        <div id="results-count" class="results-count">0 artifacts</div>
+      </div>
+    </section>
+
+    <!-- Artifacts grid -->
+    <section id="artifacts" class="grid-wrap" aria-live="polite"></section>
+
+    <!-- Pagination -->
+    <nav class="pagination" role="navigation" aria-label="Pagination">
+      <button id="prevBtn" class="btn ghost" aria-label="Previous page">Previous</button>
+      <div id="pagination-info" class="pagination-info">Page 1 of 1</div>
+      <button id="nextBtn" class="btn ghost" aria-label="Next page">Next</button>
+    </nav>
+
+    <!-- Toast -->
+    <div id="toast" class="toast" aria-hidden="true"></div>
+
+    <!-- Disqus -->
+    <section class="comments" id="comments">
+      <h2 class="comments-title">Comments</h2>
+      <div id="disqus_thread"></div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container footer-inner">
+      <nav class="footer-menu" aria-label="Footer navigation">
+        <a href="components/privacy-policy.html">Privacy Policy</a>
+        <a href="components/disclaimer.html">Disclaimer</a>
+        <a href="sitemap.xml">Sitemap (XML)</a>
+        <a href="components/contact.html">Contact</a>
+        <a href="components/about.html">About</a>
+        <a href="components/cdma.html">CDMA</a>
+      </nav>
+      <div class="copyright">
+        © <span id="year"></span> THE ARTIFACT VIDEY — All rights reserved.
       </div>
     </div>
+  </footer>
 
-    <div class="container mx-auto w-full max-w-6xl px-4">
-      <!-- HEADER -->
-      <header class="bg-surface border-b border-border shadow-sm sticky top-0 z-40">
-        <div class="flex justify-between items-center px-4 py-3">
-          <h1 class="text-2xl font-bold tracking-tight">THE ARTIFACT VIDEY</h1>
-          <nav class="flex items-center gap-4 text-sm font-semibold">
-            <a href="index.html" class="hover:text-accent transition">Home</a>
-            <a href="drama.html" class="hover:text-accent transition">Drama List</a>
-            <a href="#" class="hover:text-accent transition">Contact</a>
-          </nav>
-        </div>
-      </header>
+  <!-- CDN scripts (order matters) -->
+  <!-- AOS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-      <!-- MAIN -->
-      <main class="flex-grow py-10">
-        <section>
-          <div class="text-center mb-8">
-            <h2 class="text-3xl font-bold mb-2">Curated Video Access</h2>
-            <p class="text-gray-600">Exclusive video links sourced from trusted streaming hosts. No false redirects.</p>
-          </div>
+  <!-- Google Analytics (GA4) placeholder -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 
-          <!-- SEARCH -->
-          <div class="mb-8 flex justify-center">
-            <input
-              type="text"
-              id="searchInput"
-              placeholder="Search artifacts..."
-              class="w-full max-w-lg rounded-2xl border border-border bg-surface px-4 py-2 shadow-sm focus:ring-2 focus:ring-accent focus:outline-none"
-            />
-          </div>
+  <!-- Histats placeholder script (deferred) -->
+  <!-- Histats snippet would go here, replaced with your ID in statistics.js -->
 
-          <!-- ARTIFACT GRID -->
-          <div id="videoList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8"></div>
+  <!-- Disqus - will be setup in statistics.js using shortname -->
 
-          <!-- PAGINATION CONTROLS (preserved) -->
-          <div class="pagination-container flex items-center justify-center gap-4 mb-12">
-            <button
-              id="prevBtn"
-              class="pagination-btn flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl shadow-sm hover:bg-accent hover:text-white transition disabled:opacity-50"
-              disabled
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-              PREVIOUS
-            </button>
+  <!-- App scripts -->
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/statistics.js"></script>
+  <script src="assets/js/app.js"></script>
 
-            <span id="pageInfo" class="text-sm font-medium text-gray-600">Page 1 of 1</span>
+  <script>
+    // Initialize UI small bits
+    document.getElementById('year').textContent = new Date().getFullYear();
+    AOS.init({ once: true, duration: 600, easing: 'ease-in-out' });
+  </script>
 
-            <button
-              id="nextBtn"
-              class="pagination-btn flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl shadow-sm hover:bg-accent hover:text-white transition"
-            >
-              NEXT
-              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Load More (kept if needed) -->
-          <div class="load-more-container text-center mb-12">
-            <button id="loadMoreBtn" class="bg-surface border border-border px-6 py-3 rounded-2xl shadow-sm hover:bg-accent hover:text-white transition">
-              LOAD MORE ARTIFACTS
-            </button>
-          </div>
-        </section>
-      </main>
-
-      <!-- FOOTER -->
-      <footer class="bg-surface border-t border-border py-6 text-center text-sm text-gray-500">
-        <div id="disqus_thread" class="mb-4"></div>
-        <p class="mb-2">The Artifact Videy is an independent directory that curates verified external sources. We do not host or store any video content directly.</p>
-        <p>© 2025 THE ARTIFACT VIDEY — curated directory</p>
-      </footer>
-    </div>
-
-    <!-- Toast Notification -->
-    <div class="toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-surface border border-border px-4 py-2 rounded-lg shadow-md hidden" id="toast">External Link Initiated</div>
-
-    <!-- External Libraries -->
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-
-    <!-- Internal JavaScript (order preserved: config -> statistics -> app) -->
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/statistics.js"></script>
-    <script src="assets/js/app.js"></script>
-
-    <!-- Initialize UI libs if needed -->
-    <script>
-      // Initialize lucide icons if library available
-      if (window.lucide) {
-        lucide.replace();
-      }
-      // Initialize AOS animations
-      if (window.AOS) {
-        AOS.init();
-      }
-    </script>
-  </body>
+</body>
 </html>
