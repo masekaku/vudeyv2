@@ -1,82 +1,149 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#00ffcc">
-    <meta name="description" content="The Artifact Videy: Exclusive adult videos with cinematic and artistic vibes.">
-    <meta property="og:title" content="The Artifact Videy: Classified and Forbidden Archive">
-    <meta property="og:description" content="A futuristic directory portal leading to forbidden external archives.">
-    <meta property="og:image" content="thumbnail.jpg">
-    <meta property="og:type" content="website">
-    <title>THE ARTIFACT VIDEY
-Where Desire Meets Art.</title>
-    <link rel="manifest" href="manifest.json">
-    
-    <!-- External Libraries -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    
-    <!-- Internal CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="The Artifact Videy – exclusive access directory to curated external video archives." />
+    <meta name="keywords" content="Artifact Videy, curated videos, cinematic archive, curated directory" />
+    <meta name="robots" content="index, follow" />
+    <title>THE ARTIFACT VIDEY | Curated Video Directory</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon" />
+
+    <!-- Tailwind (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              base: '#faf7f0',
+              surface: '#ffffff',
+              text: '#111827',
+              accent: '#1e293b',
+              border: '#e5e7eb',
+              warning: '#f87171',
+            },
+            fontFamily: {
+              inter: ['Inter', 'sans-serif'],
+            },
+          },
+        },
+      };
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Optional: AOS CSS -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  </head>
+
+  <body class="bg-base text-text font-inter min-h-screen flex flex-col">
     <!-- Offline Overlay -->
-    <div class="offline-overlay hidden">
-        <div>
-            <h2>⚠ Offline Mode: Restricted Access</h2>
-            <p>Limited functionality available</p>
-        </div>
+    <div class="offline-overlay hidden fixed inset-0 bg-black/70 z-50 flex items-center justify-center">
+      <div class="bg-surface rounded-xl p-6 max-w-sm text-center shadow-lg border border-border">
+        <h2 class="text-lg font-semibold">⚠ Offline Mode: Restricted Access</h2>
+        <p class="text-sm text-gray-600 mt-2">Limited functionality available</p>
+      </div>
     </div>
 
-    <div class="container">
-        <header>
-            <h1 class="logo">THE ARTIFACT VIDEY</h1>
-            <p class="subtitle">PLEASURE IS AN ARTIFACT</p>
-        </header>
-
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Search artifacts...">
-            <i class="search-icon" data-lucide="search"></i>
+    <div class="container mx-auto w-full max-w-6xl px-4">
+      <!-- HEADER -->
+      <header class="bg-surface border-b border-border shadow-sm sticky top-0 z-40">
+        <div class="flex justify-between items-center px-4 py-3">
+          <h1 class="text-2xl font-bold tracking-tight">THE ARTIFACT VIDEY</h1>
+          <nav class="flex items-center gap-4 text-sm font-semibold">
+            <a href="index.html" class="hover:text-accent transition">Home</a>
+            <a href="drama.html" class="hover:text-accent transition">Drama List</a>
+            <a href="#" class="hover:text-accent transition">Contact</a>
+          </nav>
         </div>
+      </header>
 
-        <main>
-            <div class="artifacts-grid" id="artifactsGrid">
-                <!-- Artifacts will be dynamically loaded here -->
-            </div>
+      <!-- MAIN -->
+      <main class="flex-grow py-10">
+        <section>
+          <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold mb-2">Curated Video Access</h2>
+            <p class="text-gray-600">Exclusive video links sourced from trusted streaming hosts. No false redirects.</p>
+          </div>
 
-            <!-- PAGINATION CONTROLS -->
-            <div class="pagination-container">
-                <button id="prevBtn" class="pagination-btn" disabled>
-                    <i data-lucide="chevron-left"></i> PREVIOUS
-                </button>
-                <span class="page-info" id="pageInfo">Page 1 of 1</span>
-                <button id="nextBtn" class="pagination-btn">
-                    NEXT <i data-lucide="chevron-right"></i>
-                </button>
-            </div>
+          <!-- SEARCH -->
+          <div class="mb-8 flex justify-center">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Search artifacts..."
+              class="w-full max-w-lg rounded-2xl border border-border bg-surface px-4 py-2 shadow-sm focus:ring-2 focus:ring-accent focus:outline-none"
+            />
+          </div>
 
-            <!-- Original Load More Button (hidden by pagination) -->
-            <div class="load-more-container">
-                <button class="load-more-btn" id="loadMoreBtn">LOAD MORE ARTIFACTS</button>
-            </div>
-        </main>
+          <!-- ARTIFACT GRID -->
+          <div id="videoList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mb-8"></div>
 
-        <footer>
-            <div id="disqus_thread"></div>
-        </footer>
+          <!-- PAGINATION CONTROLS (preserved) -->
+          <div class="pagination-container flex items-center justify-center gap-4 mb-12">
+            <button
+              id="prevBtn"
+              class="pagination-btn flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl shadow-sm hover:bg-accent hover:text-white transition disabled:opacity-50"
+              disabled
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              PREVIOUS
+            </button>
+
+            <span id="pageInfo" class="text-sm font-medium text-gray-600">Page 1 of 1</span>
+
+            <button
+              id="nextBtn"
+              class="pagination-btn flex items-center gap-2 bg-surface border border-border px-4 py-2 rounded-xl shadow-sm hover:bg-accent hover:text-white transition"
+            >
+              NEXT
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+
+          <!-- Load More (kept if needed) -->
+          <div class="load-more-container text-center mb-12">
+            <button id="loadMoreBtn" class="bg-surface border border-border px-6 py-3 rounded-2xl shadow-sm hover:bg-accent hover:text-white transition">
+              LOAD MORE ARTIFACTS
+            </button>
+          </div>
+        </section>
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="bg-surface border-t border-border py-6 text-center text-sm text-gray-500">
+        <div id="disqus_thread" class="mb-4"></div>
+        <p class="mb-2">The Artifact Videy is an independent directory that curates verified external sources. We do not host or store any video content directly.</p>
+        <p>© 2025 THE ARTIFACT VIDEY — curated directory</p>
+      </footer>
     </div>
 
     <!-- Toast Notification -->
-    <div class="toast" id="toast">External Link Initiated</div>
+    <div class="toast fixed bottom-6 left-1/2 -translate-x-1/2 bg-surface border border-border px-4 py-2 rounded-lg shadow-md hidden" id="toast">External Link Initiated</div>
 
     <!-- External Libraries -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    
-    <!-- Internal JavaScript -->
+
+    <!-- Internal JavaScript (order preserved: config -> statistics -> app) -->
     <script src="assets/js/config.js"></script>
     <script src="assets/js/statistics.js"></script>
     <script src="assets/js/app.js"></script>
-</body>
+
+    <!-- Initialize UI libs if needed -->
+    <script>
+      // Initialize lucide icons if library available
+      if (window.lucide) {
+        lucide.replace();
+      }
+      // Initialize AOS animations
+      if (window.AOS) {
+        AOS.init();
+      }
+    </script>
+  </body>
 </html>
