@@ -1,422 +1,251 @@
-// Main Application Logic
+/* app.js - main logic for THE ARTIFACT VIDEY
+   - loads artifacts.json
+   - paginates (PAGE_SIZE)
+   - real-time search
+   - click tracking + history
+   - offline detection + service worker registration
+   - sitemap generation (client-side HTML sitemap)
+*/
 
-// State management
-let artifacts = [];
-let filteredArtifacts = [];
-let displayedCount = 0;
-let isOnline = navigator.onLine;
+(function(cfg){
+  const pageSize = cfg.PAGE_SIZE || 5;
+  const field = cfg.FIELD_MAP;
+  const artifactsEl = document.getElementById('artifacts');
+  const searchInput = document.getElementById('search');
+  const clearSearchBtn = document.getElementById('clear-search');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const paginationInfo = document.getElementById('pagination-info');
+  const pageCounter = document.getElementById('page-counter');
+  const resultsCount = document.getElementById('results-count');
+  const toastEl = document.getElementById('toast');
 
-// DOM Elements
-const artifactsGrid = document.getElementById('artifactsGrid');
-const loadMoreBtn = document.getElementById('loadMoreBtn');
-const searchInput = document.querySelector('.search-input');
-const toast = document.getElementById('toast');
-const offlineOverlay = document.querySelector('.offline-overlay');
+  let artifacts = [];
+  let filtered = [];
+  let currentPage = 1;
+  let totalPages = 1;
 
-// Initialize the application
-function initApp() {
-    // Initialize icons and animations
-    lucide.createIcons();
-    AOS.init({
-        duration: 800,
-        once: true
+  // Helper: fetch JSON with timeout
+  function fetchJSON(url, timeout = 7000) {
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(()=>reject(new Error('Timeout')), timeout);
+      fetch(url).then(r=>{
+        clearTimeout(timer);
+        if (!r.ok) return reject(new Error('Network error'));
+        return r.json().then(json => resolve(json));
+      }).catch(err=>{
+        clearTimeout(timer);
+        reject(err);
+      });
     });
-    
-    // Initialize analytics
-    if (typeof initAllAnalytics === 'function') {
-        initAllAnalytics();
-    }
-    
-    // Load artifacts
-    loadArtifacts();
-    
-    // Set up event listeners
-    setupEventListeners();
-    
-    // Check online status
-    updateOnlineStatus();
-}
+  }
 
-// Expand short keys to readable field names
-function expandKeys(data) {
-    return data.map(item => {
-        const expanded = {};
-        for (const [shortKey, longKey] of Object.entries(FIELD_MAP)) {
-            if (item.hasOwnProperty(shortKey)) {
-                expanded[longKey] = item[shortKey];
-            }
-        }
-        return expanded;
-    });
-}
-
-// Load artifacts from JSON
-async function loadArtifacts() {
+  // Load artifacts
+  async function loadArtifacts() {
     try {
-        const response = await fetch('artifacts.json');
-        if (!response.ok) throw new Error('Failed to fetch artifacts');
-        
-        const data = await response.json();
-        artifacts = expandKeys(data);
-        filteredArtifacts = [...artifacts];
-        
-        // Initial render
-        renderArtifacts();
-        updateLoadMoreButton();
-        
-        // Initialize pagination after data is loaded
-        initPagination();
-        
-        // Hide offline overlay if shown
-        if (!isOnline) {
-            isOnline = true;
-            offlineOverlay.classList.add('hidden');
+      const data = await fetchJSON(cfg.ARTIFACTS_JSON);
+      artifacts = Array.isArray(data) ? data : [];
+      filtered = artifacts.slice();
+      updatePagination();
+      render();
+      // cache artifacts into localStorage as fallback
+      try { localStorage.setItem('artifacts_cache', JSON.stringify(artifacts)); } catch(e){}
+    } catch (e) {
+      // offline or error: attempt local fallback
+      try {
+        const cached = localStorage.getItem('artifacts_cache');
+        if (cached) {
+          artifacts = JSON.parse(cached);
+          filtered = artifacts.slice();
+          updatePagination();
+          render();
+          showToast('Offline: showing cached artifacts');
+        } else {
+          artifactsEl.innerHTML = `<div class="card"><div class="card-body">No artifacts available offline.</div></div>`;
         }
-    } catch (error) {
-        console.error('Error loading artifacts:', error);
-        if (!isOnline) {
-            offlineOverlay.classList.remove('hidden');
-        }
+      } catch (err) {
+        artifactsEl.innerHTML = `<div class="card"><div class="card-body">Unable to load artifacts.</div></div>`;
+      }
     }
-}
+  }
 
-// Render artifacts to the grid
-function renderArtifacts() {
-    const itemsToRender = filteredArtifacts.slice(displayedCount, displayedCount + CONFIG.itemsPerPage);
-    
-    itemsToRender.forEach((artifact, index) => {
-        // Create artifact card
-        const card = createArtifactCard(artifact);
-        artifactsGrid.appendChild(card);
-        
-        // Add ad placeholder after every CONFIG.adFrequency items
-        if ((displayedCount + index + 1) % CONFIG.adFrequency === 0) {
-            const adPlaceholder = createAdPlaceholder();
-            artifactsGrid.appendChild(adPlaceholder);
-        }
-    });
-    
-    displayedCount += itemsToRender.length;
-}
-
-// Create artifact card element
-function createArtifactCard(artifact) {
-    const card = document.createElement('div');
-    card.className = 'artifact-card';
-    card.setAttribute('data-aos', 'fade-up');
-    card.setAttribute('data-id', artifact.id);
-    
-    card.innerHTML = `
-        <div class="thumbnail-container">
-            <img src="${artifact.thumbnail}" alt="${artifact.title}" class="thumbnail" loading="lazy">
-        </div>
-        <div class="artifact-info">
-            <h3 class="artifact-title">${artifact.title}</h3>
-            <p class="artifact-id">ARTIFACT ID: ${artifact.id}</p>
-        </div>
-    `;
-    
-    // Add click event
-    card.addEventListener('click', () => handleArtifactClick(artifact));
-    
-    return card;
-}
-
-// Create ad placeholder element
-function createAdPlaceholder() {
-    const adPlaceholder = document.createElement('div');
-    adPlaceholder.className = 'ad-placeholder';
-    adPlaceholder.innerHTML = 'ADVERTISEMENT (300×250)';
-    return adPlaceholder;
-}
-
-// Handle artifact click
-function handleArtifactClick(artifact) {
-    // Save to browsing history
-    saveToHistory(artifact);
-    
-    // Track click for analytics
-    if (typeof trackArtifactClick === 'function') {
-        trackArtifactClick(artifact.id, artifact.title);
+  // Render artifact cards for currentPage
+  function render() {
+    const start = (currentPage - 1) * pageSize;
+    const items = filtered.slice(start, start + pageSize);
+    artifactsEl.innerHTML = '';
+    if (!items.length) {
+      artifactsEl.innerHTML = `<div class="card"><div class="card-body">No artifacts found.</div></div>`;
     } else {
-        // Fallback if statistics.js not loaded
-        incrementClickCounter(artifact.id);
+      items.forEach(item => {
+        const id = item[field.id];
+        const title = item[field.title];
+        const thumb = item[field.thumbnail];
+        const link = item[field.link];
+        const anchor = document.createElement('a');
+        anchor.className = 'card';
+        anchor.setAttribute('data-id', id);
+        anchor.setAttribute('href', link);
+        anchor.setAttribute('target', '_blank');
+        anchor.setAttribute('rel', 'noopener noreferrer');
+        anchor.setAttribute('data-aos', 'fade-up');
+        anchor.innerHTML = `
+          <div class="thumb"><img loading="lazy" src="${thumb}" alt="${escapeHtml(title)}"></div>
+          <div class="card-body">
+            <div>
+              <div class="card-title">${escapeHtml(title)}</div>
+              <div class="card-meta">ID: ${escapeHtml(id)}</div>
+            </div>
+            <div class="card-action">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path stroke="currentColor" stroke-width="1.5" d="M15 3h6v6"></path><path stroke="currentColor" stroke-width="1.5" d="M10 14L21 3"></path><path stroke="currentColor" stroke-width="1.5" d="M21 21H3V3"></path></svg>
+            </div>
+          </div>
+        `;
+        // handle click for tracking + secure external open
+        anchor.addEventListener('click', function(evt){
+          evt.preventDefault();
+          handleArtifactClick(item);
+        });
+        artifactsEl.appendChild(anchor);
+      });
     }
-    
-    // Show toast notification
-    showToast();
-    
-    // Open external link
-    window.open(artifact.external_link, '_blank', 'noopener,noreferrer');
-}
+    updatePaginationUI();
+    AOS.refresh();
+    resultsCount.textContent = `${filtered.length} artifacts`;
+  }
 
-// Save artifact to browsing history
-function saveToHistory(artifact) {
-    let history = JSON.parse(localStorage.getItem('artifactHistory') || '[]');
-    
-    // Remove if already exists
-    history = history.filter(item => item.id !== artifact.id);
-    
-    // Add to beginning
-    history.unshift({
-        id: artifact.id,
-        title: artifact.title,
-        timestamp: new Date().toISOString()
-    });
-    
-    // Keep only the last CONFIG.maxHistoryItems
-    if (history.length > CONFIG.maxHistoryItems) {
-        history = history.slice(0, CONFIG.maxHistoryItems);
-    }
-    
-    localStorage.setItem('artifactHistory', JSON.stringify(history));
-}
+  function escapeHtml(s){ return (s+'').replace(/[&<>"']/g, function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m];});}
 
-// Increment click counter (fallback)
-function incrementClickCounter(artifactId) {
-    const key = `artifact_clicks_${artifactId}`;
-    const currentCount = parseInt(localStorage.getItem(key) || '0');
-    localStorage.setItem(key, (currentCount + 1).toString());
-}
+  // Click handling
+  function handleArtifactClick(item) {
+    // save history and increment click count
+    try {
+      const historyKey = cfg.LOCALSTORAGE_HISTORY_KEY || 'artifact_history';
+      const clickKey = cfg.LOCALSTORAGE_CLICK_KEY || 'artifact_clicks';
+      // history (last 5)
+      let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
+      history = history.filter(h => h.i !== item.i);
+      history.unshift({ i: item.i, t: item.t, l: item.l, ts: Date.now() });
+      if (history.length > 5) history = history.slice(0,5);
+      localStorage.setItem(historyKey, JSON.stringify(history));
+      // clicks count
+      let clicks = JSON.parse(localStorage.getItem(clickKey) || '{}');
+      clicks[item.i] = (clicks[item.i] || 0) + 1;
+      localStorage.setItem(clickKey, JSON.stringify(clicks));
+      // analytics event
+      window.trackEvent('artifact_click', {artifact_id: item.i, title: item.t});
+    } catch(e){ /* ignore storage errors */ }
 
-// Show toast notification
-function showToast() {
-    toast.classList.add('show');
-    setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
-}
+    showToast('External Link Initiated');
 
-// Filter artifacts based on search query
-function filterArtifacts(query) {
-    const normalizedQuery = query.toLowerCase().trim();
-    
-    if (normalizedQuery === '') {
-        filteredArtifacts = [...artifacts];
+    // Open external securely using anchor to honor noopener,noreferrer
+    const a = document.createElement('a');
+    a.href = item.l;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    // for Safari & mobile. Append to DOM to ensure click works.
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+
+  // Search
+  function applySearch(query) {
+    if (!query) {
+      filtered = artifacts.slice();
     } else {
-        filteredArtifacts = artifacts.filter(artifact => 
-            artifact.title.toLowerCase().includes(normalizedQuery) ||
-            artifact.id.toLowerCase().includes(normalizedQuery)
-        );
+      const q = query.trim().toLowerCase();
+      filtered = artifacts.filter(it => {
+        const id = String(it[field.id] || '');
+        const title = String(it[field.title] || '').toLowerCase();
+        return id.includes(q) || title.includes(q);
+      });
     }
-    
-    // Reset display
-    artifactsGrid.innerHTML = '';
-    displayedCount = 0;
-    
-    // Re-render
-    renderArtifacts();
-    updateLoadMoreButton();
-    
-    // Update pagination for filtered results
-    if (typeof updatePaginationForFilter === 'function') {
-        updatePaginationForFilter();
-    }
-}
-
-// Update load more button state
-function updateLoadMoreButton() {
-    if (displayedCount >= filteredArtifacts.length) {
-        loadMoreBtn.disabled = true;
-        loadMoreBtn.textContent = 'ALL ARTIFACTS LOADED';
-    } else {
-        loadMoreBtn.disabled = false;
-        loadMoreBtn.textContent = 'LOAD MORE ARTIFACTS';
-    }
-}
-
-// Handle online/offline status
-function updateOnlineStatus() {
-    isOnline = navigator.onLine;
-    
-    if (!isOnline) {
-        offlineOverlay.classList.remove('hidden');
-    } else {
-        offlineOverlay.classList.add('hidden');
-        // Try to reload artifacts if we were offline
-        if (artifacts.length === 0) {
-            loadArtifacts();
-        }
-    }
-}
-
-// Set up event listeners
-function setupEventListeners() {
-    loadMoreBtn.addEventListener('click', () => {
-        renderArtifacts();
-        updateLoadMoreButton();
-    });
-
-    searchInput.addEventListener('input', (e) => {
-        filterArtifacts(e.target.value);
-    });
-
-    window.addEventListener('online', updateOnlineStatus);
-    window.addEventListener('offline', updateOnlineStatus);
-}
-
-// Initialize service worker for PWA
-function initServiceWorker() {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('/sw.js')
-            .then(registration => {
-                console.log('SW registered: ', registration);
-            })
-            .catch(registrationError => {
-                console.log('SW registration failed: ', registrationError);
-            });
-    }
-}
-
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    initApp();
-    initServiceWorker();
-});
-
-// ============================== 
-// SECTION: Pagination Logic
-// ============================== 
-
-// Pagination state
-let currentPage = 1;
-const itemsPerPage = 5;
-let totalPages = 1;
-
-// Pagination DOM elements
-let prevBtn, nextBtn, pageInfo;
-
-// Initialize pagination system
-function initPagination() {
-    // Get pagination DOM elements
-    prevBtn = document.getElementById('prevBtn');
-    nextBtn = document.getElementById('nextBtn');
-    pageInfo = document.getElementById('pageInfo');
-    
-    if (!prevBtn || !nextBtn || !pageInfo) {
-        console.warn('Pagination elements not found');
-        return;
-    }
-    
-    // Hide original load more button
-    if (loadMoreBtn) {
-        loadMoreBtn.style.display = 'none';
-    }
-    
-    // Calculate total pages
-    calculateTotalPages();
-    
-    // Render first page
-    renderPaginationPage();
-    
-    // Set up pagination event listeners
-    setupPaginationListeners();
-}
-
-// Calculate total pages based on filtered artifacts
-function calculateTotalPages() {
-    totalPages = Math.ceil(filteredArtifacts.length / itemsPerPage);
-    totalPages = Math.max(totalPages, 1); // Ensure at least 1 page
-}
-
-// Render current pagination page
-function renderPaginationPage() {
-    // Clear existing artifacts
-    artifactsGrid.innerHTML = '';
-    
-    // Calculate start and end indices for current page
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = Math.min(startIndex + itemsPerPage, filteredArtifacts.length);
-    
-    // Get artifacts for current page
-    const pageArtifacts = filteredArtifacts.slice(startIndex, endIndex);
-    
-    // Render artifacts for current page
-    pageArtifacts.forEach((artifact, index) => {
-        const card = createArtifactCard(artifact);
-        artifactsGrid.appendChild(card);
-        
-        // Add ad placeholder after every 5 items (maintain existing ad logic)
-        if ((index + 1) % CONFIG.adFrequency === 0) {
-            const adPlaceholder = createAdPlaceholder();
-            artifactsGrid.appendChild(adPlaceholder);
-        }
-    });
-    
-    // Update pagination controls
-    updatePaginationControls();
-}
-
-// Update pagination button states and page info
-function updatePaginationControls() {
-    // Update page info
-    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-    
-    // Update button states
-    prevBtn.disabled = currentPage === 1;
-    nextBtn.disabled = currentPage === totalPages;
-    
-    // Update icons (re-initialize lucide for dynamically added icons)
-    if (window.lucide) {
-        lucide.createIcons();
-    }
-}
-
-// Go to next page
-function nextPage() {
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderPaginationPage();
-    }
-}
-
-// Go to previous page
-function previousPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        renderPaginationPage();
-    }
-}
-
-// Set up pagination event listeners
-function setupPaginationListeners() {
-    prevBtn.addEventListener('click', previousPage);
-    nextBtn.addEventListener('click', nextPage);
-}
-
-// Update pagination when filtering artifacts
-function updatePaginationForFilter() {
-    // Reset to first page
     currentPage = 1;
-    
-    // Recalculate total pages
-    calculateTotalPages();
-    
-    // Re-render with filtered results
-    renderPaginationPage();
-}
+    updatePagination();
+    render();
+  }
 
-// Override the original filterArtifacts function to include pagination
-const originalFilterArtifacts = filterArtifacts;
+  // Pagination calculations
+  function updatePagination() {
+    totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+    if (currentPage > totalPages) currentPage = totalPages;
+  }
+  function updatePaginationUI() {
+    paginationInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    pageCounter.textContent = `Page ${currentPage} of ${totalPages}`;
+    prevBtn.disabled = currentPage <= 1;
+    nextBtn.disabled = currentPage >= totalPages;
+  }
 
-filterArtifacts = function(query) {
-    originalFilterArtifacts(query);
-    
-    // Update pagination for filtered results
-    if (typeof updatePaginationForFilter === 'function') {
-        updatePaginationForFilter();
-    }
-};
+  // Prev/Next handlers
+  prevBtn.addEventListener('click', ()=> {
+    if (currentPage > 1) { currentPage--; render(); window.trackEvent('pagination_prev',{page:currentPage}); }
+  });
+  nextBtn.addEventListener('click', ()=> {
+    if (currentPage < totalPages) { currentPage++; render(); window.trackEvent('pagination_next',{page:currentPage}); }
+  });
 
-// Override the original renderArtifacts to use pagination instead
-const originalRenderArtifacts = renderArtifacts;
+  // Search bindings
+  searchInput.addEventListener('input', (e)=> applySearch(e.target.value));
+  clearSearchBtn.addEventListener('click', ()=> { searchInput.value=''; applySearch(''); });
 
-renderArtifacts = function() {
-    // Use pagination instead of load more
-    if (typeof initPagination === 'function') {
-        initPagination();
-    } else {
-        // Fallback to original if pagination not available
-        originalRenderArtifacts();
-    }
-};
+  // Toast display
+  let toastTimer = null;
+  function showToast(message, timeout=2200){
+    toastEl.textContent = message;
+    toastEl.classList.add('show');
+    toastEl.setAttribute('aria-hidden','false');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=> {
+      toastEl.classList.remove('show');
+      toastEl.setAttribute('aria-hidden','true');
+    }, timeout);
+  }
+
+  // Service worker registration
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').then(reg=>{
+        console.log('ServiceWorker registered', reg);
+      }).catch(err=>{
+        console.warn('SW registration failed', err);
+      });
+    });
+  }
+
+  // Offline detection
+  function updateNetworkStatus(){
+    if (!navigator.onLine) showToast('You are offline — using cached data if available');
+  }
+  window.addEventListener('offline', updateNetworkStatus);
+  window.addEventListener('online', ()=> showToast('Back online'));
+
+  // HTML Sitemap generation (client-side) - creates a user-facing HTML sitemap file in components/sitemap.html (if needed)
+  // We instead expose a method that can be used to display sitemap in-app
+  window.generateHtmlSitemap = function() {
+    const cont = document.createElement('div');
+    cont.innerHTML = '<h3 style="color:var(--neon-green)">HTML Sitemap</h3>';
+    const ul = document.createElement('ul');
+    artifacts.forEach(it=>{
+      const li = document.createElement('li');
+      const a = document.createElement('a');
+      a.href = it[field.link] || '#';
+      a.textContent = `${it[field.title]} (ID: ${it[field.id]})`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      li.appendChild(a);
+      ul.appendChild(li);
+    });
+    cont.appendChild(ul);
+    return cont;
+  };
+
+  // initialize
+  loadArtifacts();
+
+  // Expose small helpers for dev
+  window.__ARTIFACTS = { getAll: ()=>artifacts, getFiltered: ()=>filtered };
+
+})(window.APP_CONFIG || { PAGE_SIZE:5, ARTIFACTS_JSON:'/artifacts.json', FIELD_MAP:{id:'i',title:'t',thumbnail:'m',link:'l'} });
