@@ -3,139 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#00ffcc">
+    <meta name="description" content="The Artifact: Classified and Forbidden Archive – A digital archive portal redirecting to classified external sources.">
+    <meta property="og:title" content="The Artifact: Classified and Forbidden Archive">
+    <meta property="og:description" content="A futuristic directory portal leading to forbidden external archives.">
+    <meta property="og:image" content="thumbnail.jpg">
+    <meta property="og:type" content="website">
     <title>The Artifact: Classified and Forbidden Archive</title>
-    <meta name="theme-color" content="#00ff00">
-    <link rel="icon" href="assets/icons/favicon.svg">
+    <link rel="manifest" href="manifest.json">
     
     <!-- External Libraries -->
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
-    <!-- Local CSS -->
+    <!-- Internal CSS -->
     <link rel="stylesheet" href="assets/css/style.css">
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
 </head>
-<body class="bg-black text-green-400 font-mono">
-    <div id="app">
-        <!-- Offline Overlay -->
-        <div id="offline-overlay" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center hidden">
-            <div class="text-center p-8 border border-green-500 rounded-lg bg-black">
-                <div class="text-4xl mb-4">⚠</div>
-                <h2 class="text-2xl font-bold mb-2">Offline Mode: Restricted Access</h2>
-                <p class="text-lg">Limited functionality available. Connection required for full archive access.</p>
-            </div>
+<body>
+    <!-- Offline Overlay -->
+    <div class="offline-overlay hidden">
+        <div>
+            <h2>⚠ Offline Mode: Restricted Access</h2>
+            <p>Limited functionality available</p>
         </div>
+    </div>
 
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="fixed inset-0 bg-black z-40 flex items-center justify-center">
-            <div class="text-center">
-                <div class="inline-block animate-pulse text-4xl mb-4">🔮</div>
-                <h2 class="text-xl font-bold">Initializing Archive Terminal</h2>
-                <p class="mt-2">Decrypting classified artifacts...</p>
-            </div>
-        </div>
-
-        <!-- Toast Container -->
-        <div id="toast-container" class="fixed top-4 right-4 z-30 space-y-2"></div>
-
-        <!-- Header -->
-        <header class="border-b border-green-800 p-4">
-            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
-                <div class="flex items-center mb-4 md:mb-0">
-                    <div class="text-3xl mr-3">🔮</div>
-                    <div>
-                        <h1 class="text-2xl font-bold">The Artifact Archive</h1>
-                        <p class="text-sm text-green-600">Classified & Forbidden Repository</p>
-                    </div>
-                </div>
-                
-                <div class="flex items-center space-x-4">
-                    <!-- Theme Toggle -->
-                    <button id="theme-toggle" class="p-2 rounded border border-green-700 hover:bg-green-900 transition-colors">
-                        <i data-lucide="moon" class="w-5 h-5"></i>
-                    </button>
-                    
-                    <!-- Favorites Toggle -->
-                    <button id="favorites-toggle" class="p-2 rounded border border-green-700 hover:bg-green-900 transition-colors">
-                        <i data-lucide="heart" class="w-5 h-5"></i>
-                    </button>
-                </div>
-            </div>
+    <div class="container">
+        <header>
+            <h1 class="logo">THE ARTIFACT ARCHIVE</h1>
+            <p class="subtitle">CLASSIFIED AND FORBIDDEN COLLECTION</p>
         </header>
 
-        <!-- Main Content -->
-        <main class="container mx-auto p-4">
-            <!-- Search and Filters -->
-            <section class="mb-8">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    <!-- Search -->
-                    <div class="relative">
-                        <input type="text" id="search-input" placeholder="Search artifacts..." 
-                               class="w-full bg-black border border-green-700 rounded p-2 pl-10 focus:outline-none focus:border-green-400">
-                        <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-green-600"></i>
-                    </div>
-                    
-                    <!-- Category Filter -->
-                    <div class="relative">
-                        <select id="category-filter" class="w-full bg-black border border-green-700 rounded p-2 appearance-none focus:outline-none focus:border-green-400">
-                            <option value="">All Categories</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-2.5 w-5 h-5 text-green-600 pointer-events-none"></i>
-                    </div>
-                    
-                    <!-- Risk Filter -->
-                    <div class="relative">
-                        <select id="risk-filter" class="w-full bg-black border border-green-700 rounded p-2 appearance-none focus:outline-none focus:border-green-400">
-                            <option value="">All Risk Levels</option>
-                            <option value="low">Low Risk</option>
-                            <option value="medium">Medium Risk</option>
-                            <option value="high">High Risk</option>
-                            <option value="extreme">Extreme Risk</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="absolute right-3 top-2.5 w-5 h-5 text-green-600 pointer-events-none"></i>
-                    </div>
-                </div>
-                
-                <!-- Active Filters -->
-                <div id="active-filters" class="flex flex-wrap gap-2 mb-4"></div>
-            </section>
-            
-            <!-- Artifacts Grid -->
-            <section>
-                <div id="artifacts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Artifacts will be rendered here -->
-                </div>
-                
-                <!-- Load More Button -->
-                <div id="load-more-container" class="text-center mb-8">
-                    <button id="load-more" class="bg-green-900 hover:bg-green-800 border border-green-700 rounded px-6 py-3 transition-colors">
-                        Load More Artifacts
-                    </button>
-                </div>
-                
-                <!-- Ad Slot Placeholder -->
-                <div id="ad-slot" class="bg-gray-900 border border-dashed border-gray-700 rounded-lg h-64 flex items-center justify-center text-gray-500 mb-8 hidden">
-                    <div class="text-center">
-                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
-                        <p>Ad Slot (300×250)</p>
-                    </div>
-                </div>
-            </section>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="Search artifacts...">
+            <i class="search-icon" data-lucide="search"></i>
+        </div>
+
+        <main>
+            <div class="artifacts-grid" id="artifactsGrid">
+                <!-- Artifacts will be dynamically loaded here -->
+            </div>
+
+            <div class="load-more-container">
+                <button class="load-more-btn" id="loadMoreBtn">LOAD MORE ARTIFACTS</button>
+            </div>
         </main>
 
-        <!-- Footer -->
-        <footer class="border-t border-green-800 p-4 text-center text-sm text-green-600">
-            <p>⚠ Restricted Access - For Authorized Personnel Only ⚠</p>
-            <p class="mt-1">The Artifact Archive v1.0 | Terminal Status: <span id="connection-status">Online</span></p>
+        <footer>
+            <div id="disqus_thread"></div>
         </footer>
     </div>
 
-    <!-- JavaScript Files -->
-    <script src="assets/js/data.js"></script>
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">External Link Initiated</div>
+
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Internal JavaScript -->
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/statistics.js"></script>
     <script src="assets/js/app.js"></script>
 </body>
 </html>
