@@ -4,163 +4,138 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Artifact: Classified and Forbidden Archive</title>
+    <meta name="theme-color" content="#00ff00">
+    <link rel="icon" href="assets/icons/favicon.svg">
     
-    <!-- Third-party CDN Resources -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" />
-    <link rel="stylesheet" href="styles/main.css">
-    
-    <!-- Embedded PWA Manifest -->
-    <link rel="manifest" id="app-manifest">
-</head>
-<body class="bg-gray-900 text-green-400 font-mono">
-    <!-- Offline Banner -->
-    <div class="offline-banner" id="offlineBanner">
-        <span class="font-bold">OFFLINE MODE: RESTRICTED ACCESS</span>
-    </div>
-    
-    <!-- Toast Notifications -->
-    <div class="toast" id="toast"></div>
-    
-    <!-- Header -->
-    <header class="terminal-border bg-black p-4 mb-6">
-        <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
-            <h1 class="text-2xl md:text-3xl font-bold glitch-effect" data-text="THE ARTIFACT VIDEY">
-                THE ARTIFACT VIDEY
-            </h1>
-            <div class="flex items-center space-x-4 mt-4 md:mt-0">
-                <button id="audioToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
-                    <i data-lucide="volume-2" class="w-5 h-5"></i>
-                    <span>Audio: ON</span>
-                </button>
-                <button id="themeToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
-                    <i data-lucide="moon" class="w-5 h-5"></i>
-                    <span>Dark Mode</span>
-                </button>
-                <button id="qualityToggle" class="flex items-center space-x-2 px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded">
-                    <i data-lucide="settings" class="w-5 h-5"></i>
-                    <span>Quality: Low Res</span>
-                </button>
-            </div>
-        </div>
-    </header>
-    
-    <main class="container mx-auto px-4">
-        <!-- Search and Filter -->
-        <section class="mb-8 terminal-border p-4 bg-black">
-            <div class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
-                <input type="text" id="searchInput" placeholder="SEARCH..." 
-                       class="flex-grow p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                <select id="categoryFilter" class="p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">ALL CATEGORIES</option>
-                    <option value="anomalous">INDO</option>
-                    <option value="extraterrestrial">SMP</option>
-                    <option value="paranormal">TANTE</option>
-                    <option value="cryptid">JAPAN</option>
-                    <option value="government">BARAT</option>
-                </select>
-                <select id="riskFilter" class="p-3 bg-gray-800 border border-green-500 rounded focus:outline-none focus:ring-2 focus:ring-green-500">
-                    <option value="">ALL RISK LEVELS</option>
-                    <option value="high">HIGH VIDEO</option>
-                    <option value="medium">MEDIUM VIDEO</option>
-                    <option value="low">LOW VIDEO</option>
-                </select>
-            </div>
-        </section>
-        
-        <!-- Video Player Section -->
-        <section class="mb-8 terminal-border p-4 bg-black" id="playerSection" style="display: none;">
-            <div class="mb-4 flex justify-between items-center">
-                <h2 id="videoTitle" class="text-xl font-bold"></h2>
-                <div class="flex space-x-2">
-                    <button id="prevVideo" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
-                        <i data-lucide="skip-back" class="w-4 h-4 mr-2"></i> PREV
-                    </button>
-                    <button id="nextVideo" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
-                        NEXT <i data-lucide="skip-forward" class="w-4 h-4 ml-2"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="relative">
-                <video id="player" controls crossorigin playsinline></video>
-                <div class="mt-4 flex flex-wrap gap-2">
-                    <button id="favoriteBtn" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
-                        <i data-lucide="heart" class="w-4 h-4 mr-2"></i> <span>ADD TO FAVORITES</span>
-                    </button>
-                    <button id="downloadBtn" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 rounded flex items-center">
-                        <i data-lucide="download" class="w-4 h-4 mr-2"></i> <span>EXTRACT DATA</span>
-                    </button>
-                </div>
-            </div>
-            
-            <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-3 bg-gray-800 rounded">
-                    <h3 class="font-bold mb-2">CLASSIFICATION</h3>
-                    <p id="videoCategory" class="text-sm"></p>
-                </div>
-                <div class="p-3 bg-gray-800 rounded">
-                    <h3 class="font-bold mb-2">RISK LEVEL</h3>
-                    <p id="videoRisk" class="text-sm"></p>
-                </div>
-                <div class="p-3 bg-gray-800 rounded">
-                    <h3 class="font-bold mb-2">DATA SOURCE</h3>
-                    <p id="videoSource" class="text-sm"></p>
-                </div>
-            </div>
-            
-            <div class="mt-4">
-                <h3 class="font-bold mb-2">DESCRIPTION</h3>
-                <p id="videoDescription" class="text-sm"></p>
-            </div>
-            
-            <!-- Disqus Comments -->
-            <div class="mt-8">
-                <h3 class="font-bold mb-4">DECLASSIFIED COMMENTS</h3>
-                <div id="disqus_thread"></div>
-            </div>
-        </section>
-        
-        <!-- Video Grid -->
-        <section class="mb-8">
-            <h2 class="text-xl font-bold mb-4 glitch-effect" data-text="CLASSIFIED FOOTAGE">CLASSIFIED FOOTAGE</h2>
-            <div id="videoGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <!-- Videos will be loaded here -->
-            </div>
-            
-            <!-- Ad Slot -->
-            <div id="adSlot1" class="ad-slot">
-                AD SLOT: 300x250
-            </div>
-            
-            <!-- Load More Button -->
-            <div class="text-center mt-8">
-                <button id="loadMore" class="px-6 py-3 bg-gray-800 hover:bg-gray-700 rounded terminal-border">
-                    LOAD MORE CLASSIFIED DATA
-                </button>
-            </div>
-        </section>
-    </main>
-    
-    <!-- Footer -->
-    <footer class="terminal-border bg-black p-6 mt-8">
-        <div class="container mx-auto text-center">
-            <p class="mb-4">ACCESS LEVEL: CLASSIFIED | CLEARANCE: FORBIDDEN</p>
-            <p>© 2023 THE ARTIFACT ARCHIVE. UNAUTHORIZED ACCESS IS PROHIBITED.</p>
-        </div>
-    </footer>
-
-    <!-- Third-party Scripts -->
+    <!-- External Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/plyr/3.7.8/plyr.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     
-    <!-- Application Scripts -->
-    <script src="scripts/video-data.js"></script>
-    <script src="scripts/app.js"></script>
-    <script src="scripts/service-worker.js"></script>
+    <!-- Local CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+</head>
+<body class="bg-black text-green-400 font-mono">
+    <div id="app">
+        <!-- Offline Overlay -->
+        <div id="offline-overlay" class="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center hidden">
+            <div class="text-center p-8 border border-green-500 rounded-lg bg-black">
+                <div class="text-4xl mb-4">⚠</div>
+                <h2 class="text-2xl font-bold mb-2">Offline Mode: Restricted Access</h2>
+                <p class="text-lg">Limited functionality available. Connection required for full archive access.</p>
+            </div>
+        </div>
+
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="fixed inset-0 bg-black z-40 flex items-center justify-center">
+            <div class="text-center">
+                <div class="inline-block animate-pulse text-4xl mb-4">🔮</div>
+                <h2 class="text-xl font-bold">Initializing Archive Terminal</h2>
+                <p class="mt-2">Decrypting classified artifacts...</p>
+            </div>
+        </div>
+
+        <!-- Toast Container -->
+        <div id="toast-container" class="fixed top-4 right-4 z-30 space-y-2"></div>
+
+        <!-- Header -->
+        <header class="border-b border-green-800 p-4">
+            <div class="container mx-auto flex flex-col md:flex-row justify-between items-center">
+                <div class="flex items-center mb-4 md:mb-0">
+                    <div class="text-3xl mr-3">🔮</div>
+                    <div>
+                        <h1 class="text-2xl font-bold">The Artifact Archive</h1>
+                        <p class="text-sm text-green-600">Classified & Forbidden Repository</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="p-2 rounded border border-green-700 hover:bg-green-900 transition-colors">
+                        <i data-lucide="moon" class="w-5 h-5"></i>
+                    </button>
+                    
+                    <!-- Favorites Toggle -->
+                    <button id="favorites-toggle" class="p-2 rounded border border-green-700 hover:bg-green-900 transition-colors">
+                        <i data-lucide="heart" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-4">
+            <!-- Search and Filters -->
+            <section class="mb-8">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <!-- Search -->
+                    <div class="relative">
+                        <input type="text" id="search-input" placeholder="Search artifacts..." 
+                               class="w-full bg-black border border-green-700 rounded p-2 pl-10 focus:outline-none focus:border-green-400">
+                        <i data-lucide="search" class="absolute left-3 top-2.5 w-5 h-5 text-green-600"></i>
+                    </div>
+                    
+                    <!-- Category Filter -->
+                    <div class="relative">
+                        <select id="category-filter" class="w-full bg-black border border-green-700 rounded p-2 appearance-none focus:outline-none focus:border-green-400">
+                            <option value="">All Categories</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-2.5 w-5 h-5 text-green-600 pointer-events-none"></i>
+                    </div>
+                    
+                    <!-- Risk Filter -->
+                    <div class="relative">
+                        <select id="risk-filter" class="w-full bg-black border border-green-700 rounded p-2 appearance-none focus:outline-none focus:border-green-400">
+                            <option value="">All Risk Levels</option>
+                            <option value="low">Low Risk</option>
+                            <option value="medium">Medium Risk</option>
+                            <option value="high">High Risk</option>
+                            <option value="extreme">Extreme Risk</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="absolute right-3 top-2.5 w-5 h-5 text-green-600 pointer-events-none"></i>
+                    </div>
+                </div>
+                
+                <!-- Active Filters -->
+                <div id="active-filters" class="flex flex-wrap gap-2 mb-4"></div>
+            </section>
+            
+            <!-- Artifacts Grid -->
+            <section>
+                <div id="artifacts-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Artifacts will be rendered here -->
+                </div>
+                
+                <!-- Load More Button -->
+                <div id="load-more-container" class="text-center mb-8">
+                    <button id="load-more" class="bg-green-900 hover:bg-green-800 border border-green-700 rounded px-6 py-3 transition-colors">
+                        Load More Artifacts
+                    </button>
+                </div>
+                
+                <!-- Ad Slot Placeholder -->
+                <div id="ad-slot" class="bg-gray-900 border border-dashed border-gray-700 rounded-lg h-64 flex items-center justify-center text-gray-500 mb-8 hidden">
+                    <div class="text-center">
+                        <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-2"></i>
+                        <p>Ad Slot (300×250)</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="border-t border-green-800 p-4 text-center text-sm text-green-600">
+            <p>⚠ Restricted Access - For Authorized Personnel Only ⚠</p>
+            <p class="mt-1">The Artifact Archive v1.0 | Terminal Status: <span id="connection-status">Online</span></p>
+        </footer>
+    </div>
+
+    <!-- JavaScript Files -->
+    <script src="assets/js/data.js"></script>
+    <script src="assets/js/app.js"></script>
 </body>
 </html>
