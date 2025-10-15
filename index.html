@@ -44,6 +44,18 @@
                 <!-- Artifacts will be dynamically loaded here -->
             </div>
 
+            <!-- PAGINATION CONTROLS -->
+            <div class="pagination-container">
+                <button id="prevBtn" class="pagination-btn" disabled>
+                    <i data-lucide="chevron-left"></i> PREVIOUS
+                </button>
+                <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                <button id="nextBtn" class="pagination-btn">
+                    NEXT <i data-lucide="chevron-right"></i>
+                </button>
+            </div>
+
+            <!-- Original Load More Button (hidden by pagination) -->
             <div class="load-more-container">
                 <button class="load-more-btn" id="loadMoreBtn">LOAD MORE ARTIFACTS</button>
             </div>
