@@ -20,8 +20,13 @@ body {
 
 .glitch-effect {
     position: relative;
+    display: inline-block;
+    color: #fff;            /* warna teks utama */
+    font-weight: bold;
+    overflow: hidden;       /* pastikan clip tidak menumpuk keluar */
 }
 
+/* hanya pseudo-element yang menampilkan teks */
 .glitch-effect::before,
 .glitch-effect::after {
     content: attr(data-text);
@@ -30,8 +35,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
+    color: inherit;
+    overflow: hidden;
+    pointer-events: none;
 }
 
+/* efek warna dan animasi tetap seperti aslinya */
 .glitch-effect::before {
     left: 2px;
     text-shadow: -1px 0 #ff003c;
@@ -46,6 +55,7 @@ body {
     animation: glitch-anim2 5s infinite linear alternate-reverse;
 }
 
+/* animasi glitch original (tidak diubah sama sekali) */
 @keyframes glitch-anim {
     0% { clip: rect(42px, 9999px, 44px, 0); }
     5% { clip: rect(12px, 9999px, 59px, 0); }
