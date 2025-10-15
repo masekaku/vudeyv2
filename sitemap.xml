@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Replace BASE_URL with your production URL (https://example.com) -->
+  <url>
+    <loc>BASE_URL/</loc>
+    <priority>1.00</priority>
+    <changefreq>daily</changefreq>
+  </url>
+  <url>
+    <loc>BASE_URL/components/privacy-policy.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>BASE_URL/components/disclaimer.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>BASE_URL/components/contact.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>BASE_URL/components/about.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
+    <loc>BASE_URL/components/cdma.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+</urlset>
