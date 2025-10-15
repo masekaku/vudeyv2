@@ -1,23 +1,14 @@
 {
-  "name": "The Artifact Archive",
-  "short_name": "Artifact",
+  "name": "THE ARTIFACT VIDEY",
+  "short_name": "ArtifactVidey",
+  "description": "Curated video directory — terminal-style PWA.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#000000",
   "theme_color": "#00ffcc",
-  "orientation": "portrait-primary",
+  "background_color": "#0a0a0a",
   "icons": [
-    {
-      "src": "assets/icons/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "assets/icons/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["entertainment", "education"],
-  "lang": "en-US"
+    {"src":"assets/icons/icon-192.png","sizes":"192x192","type":"image/png"},
+    {"src":"assets/icons/icon-512.png","sizes":"512x512","type":"image/png"}
+  ]
 }
