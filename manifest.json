@@ -1,16 +1,23 @@
 {
-    "name": "The Artifact Archive",
-    "short_name": "ArtifactArchive",
-    "description": "Classified and Forbidden Artifact Repository",
-    "start_url": ".",
-    "display": "standalone",
-    "theme_color": "#00ff00",
-    "background_color": "#000000",
-    "icons": [
-        {
-            "src": "assets/icons/favicon.svg",
-            "sizes": "192x192",
-            "type": "image/svg+xml"
-        }
-    ]
+  "name": "The Artifact Archive",
+  "short_name": "Artifact",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#00ffcc",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["entertainment", "education"],
+  "lang": "en-US"
 }
