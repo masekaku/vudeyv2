@@ -1,91 +1,198 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EduStream Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
-  <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
-  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-  <link rel="stylesheet" href="assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>The Artifact: Classified and Forbidden Archive</title>
+    <meta name="description" content="Classified video archive - Access Level: Restricted">
+    
+    <!-- PWA Configuration -->
+    <meta name="theme-color" content="#0f0f23"/>
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Third-Party Resources -->
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts (Terminal Style) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=VT323&display=swap" rel="stylesheet">
+    <!-- Plyr.js -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- AOS Animation -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Howler.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles/main.css">
 </head>
-<body class="flex flex-col min-h-screen bg-[#fafaf9] text-[#111] font-[Poppins]" id="bodyRoot">
-  <header class="bg-white shadow-sm p-4">
-    <div class="container mx-auto flex items-center justify-between">
-      <h1 class="text-2xl font-extrabold">EduStream.co</h1>
-      <nav class="hidden lg:flex gap-3">
-        <a href="#" class="nav-link">Home</a>
-        <a href="#" class="nav-link">Kelas</a>
-        <a href="#" class="nav-link">Tentang</a>
-      </nav>
-      <button id="toggleDark" class="ml-4 px-3 py-2 rounded-lg border-2 border-gray-400 bg-gray-100 hover:bg-gray-200 transition">🌙/☀️</button>
+<body class="bg-gray-900 text-gray-200">
+    <!-- Offline Banner -->
+    <div id="offlineBanner" class="offline-banner hidden">
+        <span>Offline Mode: Restricted Access</span>
     </div>
-  </header>
 
-  <main class="flex-grow p-4 container mx-auto">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col sm:flex-row gap-4 items-center mb-4">
-        <label for="searchInput" class="block font-semibold">Cari Video:</label>
-        <input id="searchInput" type="text" placeholder="Cari video..." 
-               class="w-full sm:w-1/2 border-2 border-black rounded-xl p-3 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-               aria-label="Cari Video">
-        <select id="filterCategory" class="border-2 rounded-md p-2 ml-3">
-          <option value="">Semua Kategori</option>
-        </select>
-        <button id="showFavorites" class="px-3 py-2 bg-yellow-300 border-2 border-black rounded-xl font-bold transition hover:-translate-y-1 hover:shadow-lg">Favorit</button>
-        <button id="notifyBtn" class="ml-2 px-3 py-2 bg-blue-100 border-2 border-blue-400 rounded-xl font-bold transition hover:-translate-y-1 hover:shadow-lg">🔔 Notifikasi</button>
-      </div>
-      <!-- Sort Button akan di-render oleh JS -->
+    <!-- Toast Notifications -->
+    <div id="toastContainer"></div>
 
-      <div id="loader" class="flex justify-center items-center my-8 hidden">
-        <span class="loader"></span>
-      </div>
-      <div id="videoGrid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-      <div id="message" class="text-center text-gray-500 font-semibold my-6 hidden"></div>
-      <div class="text-center mt-6">
-        <button id="loadMoreBtn" class="px-6 py-3 bg-yellow-300 border-2 border-black rounded-xl font-bold hidden hover:-translate-y-1 hover:shadow-lg transition">
-          Tampilkan Lebih Banyak
-        </button>
-      </div>
-    </div>
-  </main>
+    <!-- Header -->
+    <header class="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
+        <div class="container mx-auto px-3 sm:px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <div class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                <h1 class="text-lg sm:text-xl terminal-font glitch-effect" data-text="THE ARTIFACT">THE ARTIFACT</h1>
+            </div>
+            <div class="flex items-center space-x-2 sm:space-x-4 header-controls">
+                <button id="themeToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Toggle theme">
+                    <i data-lucide="moon" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <i data-lucide="sun" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+                </button>
+                <button id="audioToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Toggle audio">
+                    <i data-lucide="volume2" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+                    <i data-lucide="volume-x" class="hidden w-5 h-5 sm:w-6 sm:h-6"></i>
+                </button>
+                <button id="settingsToggle" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Settings">
+                    <i data-lucide="settings" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                </button>
+            </div>
+        </div>
+    </header>
 
-  <footer class="bg-white border-t mt-8 py-4 text-center text-sm text-gray-600">
-    © 2025 EduStream.co — Dibuat untuk pembelajaran
-  </footer>
+    <!-- Main Content -->
+    <main class="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+        <!-- Player Section -->
+        <section id="playerSection" class="mb-6 sm:mb-8 hidden">
+            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+                <div class="relative">
+                    <div class="plyr__video-wrapper">
+                        <video id="player" playsinline controls>
+                            <!-- Video source will be set dynamically -->
+                        </video>
+                    </div>
+                    <div id="corruptionOverlay" class="absolute inset-0 pointer-events-none opacity-0 transition-opacity duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/10 to-transparent animate-pulse"></div>
+                    </div>
+                </div>
+                <div class="p-3 sm:p-4">
+                    <div class="flex justify-between items-start mb-3 sm:mb-4">
+                        <div class="video-info flex-1 mr-2">
+                            <h2 id="videoTitle" class="text-lg sm:text-xl font-bold mb-1 sm:mb-2 line-clamp-2"></h2>
+                            <div class="flex flex-wrap gap-1 sm:gap-2 mb-2 video-meta">
+                                <span id="videoCategory" class="px-2 py-1 bg-gray-700 rounded text-xs sm:text-sm"></span>
+                                <span id="videoRisk" class="px-2 py-1 rounded text-xs sm:text-sm"></span>
+                                <span id="videoSource" class="px-2 py-1 bg-gray-700 rounded text-xs sm:text-sm"></span>
+                            </div>
+                        </div>
+                        <div class="flex space-x-1 sm:space-x-2">
+                            <button id="favoriteBtn" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Add to favorites">
+                                <i data-lucide="heart" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            </button>
+                            <button id="downloadBtn" class="p-2 rounded hover:bg-gray-700 transition-colors" aria-label="Download video">
+                                <i data-lucide="download" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <p id="videoDescription" class="text-gray-400 text-sm sm:text-base mb-3 sm:mb-4 line-clamp-3"></p>
+                    <div class="flex flex-col sm:flex-row justify-between gap-2 player-controls">
+                        <div class="flex space-x-2">
+                            <button id="prevVideo" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors flex items-center text-sm sm:text-base">
+                                <i data-lucide="skip-back" class="mr-1 sm:mr-2 w-4 h-4 sm:w-5 sm:h-5"></i> Previous
+                            </button>
+                            <button id="nextVideo" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors flex items-center text-sm sm:text-base">
+                                Next <i data-lucide="skip-forward" class="ml-1 sm:ml-2 w-4 h-4 sm:w-5 sm:h-5"></i>
+                            </button>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="playbackRateBtn" class="px-3 sm:px-4 py-2 bg-gray-700 rounded hover:bg-gray-600 transition-colors text-sm sm:text-base">
+                                Speed: 1x
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-  <!-- Modal Detail Video -->
-  <div id="videoModal" class="modal hidden fixed inset-0 z-50 bg-black/60 flex items-center justify-center transition">
-    <div class="modal-content bg-white dark:bg-gray-900 rounded-2xl p-6 w-full max-w-xl relative" data-aos="zoom-in-up">
-      <button id="closeModal" class="absolute top-4 right-4 text-2xl">✖️</button>
-      <div id="modalVideoPlayer" class="mb-4"></div>
-      <h2 id="modalTitle" class="font-bold text-xl mb-2"></h2>
-      <p id="modalDesc" class="text-gray-600 dark:text-gray-300 mb-2"></p>
-      <div id="modalStats" class="mb-2 text-sm text-gray-500"></div>
-      <div class="flex gap-3 mb-4">
-        <button id="modalFavoriteBtn" class="px-3 py-2 rounded-lg border-2 border-yellow-500 bg-yellow-100 font-bold transition">⭐ Favorit</button>
-        <a id="modalDownloadBtn" href="#" target="_blank" class="px-3 py-2 rounded-lg border-2 border-black bg-yellow-300 font-bold transition">⬇️ Download</a>
-      </div>
-      <div id="modalRating" class="mb-4">
-        <span>Rating:</span>
-        <span id="modalRatingStars"></span>
-        <span id="modalRatingAvg" class="ml-2"></span>
-      </div>
-      <div id="modalComments" class="mb-2"></div>
-      <form id="modalCommentForm" class="flex flex-col gap-2 mt-2">
-        <input id="modalCommentInput" type="text" placeholder="Tulis komentar..." class="border p-2 rounded">
-        <button id="modalSubmitComment" type="submit" class="bg-blue-500 text-white rounded px-3 py-1 font-bold">Kirim Komentar</button>
-      </form>
-    </div>
-  </div>
+        <!-- Search and Filter -->
+        <section class="mb-6 sm:mb-8">
+            <div class="bg-gray-800 rounded-lg p-3 sm:p-4 shadow-lg">
+                <div class="flex flex-col gap-3 sm:gap-4 filter-section">
+                    <div class="flex-1">
+                        <input type="text" id="searchInput" placeholder="Search protocol matrix..." 
+                               class="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2">
+                        <select id="categoryFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
+                            <option value="">All Categories</option>
+                        </select>
+                        <select id="riskFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
+                            <option value="">All Risk Levels</option>
+                            <option value="Caution">Caution</option>
+                            <option value="High Alert">High Alert</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                        <select id="sourceFilter" class="px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
+                            <option value="">All Sources</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-  <script src="assets/script.js"></script>
-  <script>
-    AOS.init({ duration: 600, easing: "ease-out-cubic", once: false });
-  </script>
+        <!-- Video Grid -->
+        <section id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <!-- Videos will be populated here -->
+        </section>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden px-3 sm:px-4">
+            <div class="bg-gray-800 rounded-lg p-4 sm:p-6 w-full max-w-md settings-modal">
+                <div class="flex justify-between items-center mb-3 sm:mb-4">
+                    <h3 class="text-lg sm:text-xl font-bold">System Settings</h3>
+                    <button id="closeSettings" class="p-2 rounded hover:bg-gray-700 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5 sm:w-6 sm:h-6"></i>
+                    </button>
+                </div>
+                <div class="space-y-3 sm:space-y-4">
+                    <div>
+                        <label class="block mb-1 sm:mb-2 text-sm sm:text-base">Data Quality</label>
+                        <select id="dataQuality" class="w-full px-3 sm:px-4 py-2 bg-gray-700 border border-gray-600 rounded focus:outline-none focus:border-green-500 transition-colors text-sm sm:text-base">
+                            <option value="low">Low Res (Stable)</option>
+                            <option value="raw">Raw Feed (Unstable)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="flex items-center text-sm sm:text-base">
+                            <input type="checkbox" id="autoPlay" class="mr-2 w-4 h-4 sm:w-5 sm:h-5">
+                            <span>Auto-play next video</span>
+                        </label>
+                    </div>
+                    <div>
+                        <button id="clearHistory" class="w-full px-3 sm:px-4 py-2 bg-red-700 rounded hover:bg-red-600 transition-colors text-sm sm:text-base">
+                            Clear Watch History
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 border-t border-gray-700 mt-8 sm:mt-12 py-4 sm:py-6">
+        <div class="container mx-auto px-3 sm:px-4 text-center text-gray-400 text-xs sm:text-sm">
+            <p>THE ARTIFACT: CLASSIFIED AND FORBIDDEN ARCHIVE</p>
+            <p class="mt-1 sm:mt-2">Access Level: <span class="text-red-400">RESTRICTED</span> | Content suitable for audiences 17+</p>
+            <p class="mt-1 sm:mt-2">All data extraction and viewing is logged and monitored.</p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    
+    <!-- Application Scripts -->
+    <script type="module" src="scripts/app.js"></script>
 </body>
 </html>
