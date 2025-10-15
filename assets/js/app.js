@@ -64,6 +64,9 @@ async function loadArtifacts() {
         renderArtifacts();
         updateLoadMoreButton();
         
+        // Initialize pagination after data is loaded
+        initPagination();
+        
         // Hide offline overlay if shown
         if (!isOnline) {
             isOnline = true;
@@ -204,6 +207,11 @@ function filterArtifacts(query) {
     // Re-render
     renderArtifacts();
     updateLoadMoreButton();
+    
+    // Update pagination for filtered results
+    if (typeof updatePaginationForFilter === 'function') {
+        updatePaginationForFilter();
+    }
 }
 
 // Update load more button state
@@ -265,3 +273,150 @@ document.addEventListener('DOMContentLoaded', () => {
     initApp();
     initServiceWorker();
 });
+
+// ============================== 
+// SECTION: Pagination Logic
+// ============================== 
+
+// Pagination state
+let currentPage = 1;
+const itemsPerPage = 5;
+let totalPages = 1;
+
+// Pagination DOM elements
+let prevBtn, nextBtn, pageInfo;
+
+// Initialize pagination system
+function initPagination() {
+    // Get pagination DOM elements
+    prevBtn = document.getElementById('prevBtn');
+    nextBtn = document.getElementById('nextBtn');
+    pageInfo = document.getElementById('pageInfo');
+    
+    if (!prevBtn || !nextBtn || !pageInfo) {
+        console.warn('Pagination elements not found');
+        return;
+    }
+    
+    // Hide original load more button
+    if (loadMoreBtn) {
+        loadMoreBtn.style.display = 'none';
+    }
+    
+    // Calculate total pages
+    calculateTotalPages();
+    
+    // Render first page
+    renderPaginationPage();
+    
+    // Set up pagination event listeners
+    setupPaginationListeners();
+}
+
+// Calculate total pages based on filtered artifacts
+function calculateTotalPages() {
+    totalPages = Math.ceil(filteredArtifacts.length / itemsPerPage);
+    totalPages = Math.max(totalPages, 1); // Ensure at least 1 page
+}
+
+// Render current pagination page
+function renderPaginationPage() {
+    // Clear existing artifacts
+    artifactsGrid.innerHTML = '';
+    
+    // Calculate start and end indices for current page
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredArtifacts.length);
+    
+    // Get artifacts for current page
+    const pageArtifacts = filteredArtifacts.slice(startIndex, endIndex);
+    
+    // Render artifacts for current page
+    pageArtifacts.forEach((artifact, index) => {
+        const card = createArtifactCard(artifact);
+        artifactsGrid.appendChild(card);
+        
+        // Add ad placeholder after every 5 items (maintain existing ad logic)
+        if ((index + 1) % CONFIG.adFrequency === 0) {
+            const adPlaceholder = createAdPlaceholder();
+            artifactsGrid.appendChild(adPlaceholder);
+        }
+    });
+    
+    // Update pagination controls
+    updatePaginationControls();
+}
+
+// Update pagination button states and page info
+function updatePaginationControls() {
+    // Update page info
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    
+    // Update button states
+    prevBtn.disabled = currentPage === 1;
+    nextBtn.disabled = currentPage === totalPages;
+    
+    // Update icons (re-initialize lucide for dynamically added icons)
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+// Go to next page
+function nextPage() {
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderPaginationPage();
+    }
+}
+
+// Go to previous page
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        renderPaginationPage();
+    }
+}
+
+// Set up pagination event listeners
+function setupPaginationListeners() {
+    prevBtn.addEventListener('click', previousPage);
+    nextBtn.addEventListener('click', nextPage);
+}
+
+// Update pagination when filtering artifacts
+function updatePaginationForFilter() {
+    // Reset to first page
+    currentPage = 1;
+    
+    // Recalculate total pages
+    calculateTotalPages();
+    
+    // Re-render with filtered results
+    renderPaginationPage();
+}
+
+// Override the original filterArtifacts function to include pagination
+const originalFilterArtifacts = filterArtifacts;
+
+filterArtifacts = function(query) {
+    originalFilterArtifacts(query);
+    
+    // Update pagination for filtered results
+    if (typeof updatePaginationForFilter === 'function') {
+        updatePaginationForFilter();
+    }
+};
+
+// Override the original renderArtifacts to use pagination instead
+const originalRenderArtifacts = renderArtifacts;
+
+renderArtifacts = function() {
+    // Use pagination instead of load more
+    if (typeof initPagination === 'function') {
+        initPagination();
+    } else {
+        // Fallback to original if pagination not available
+        originalRenderArtifacts();
+    }
+};
