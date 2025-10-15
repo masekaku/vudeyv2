@@ -1,80 +1,90 @@
-const CACHE_NAME = 'artifact-archive-v2';
-const urlsToCache = [
+const CACHE_VERSION = 'artifact-v1';
+const STATIC_CACHE = `${CACHE_VERSION}-static`;
+const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+
+const PRECACHE_URLS = [
   '/',
   '/index.html',
-  '/artifacts.json',
-  '/manifest.json',
   '/assets/css/style.css',
+  '/assets/js/app.js',
   '/assets/js/config.js',
   '/assets/js/statistics.js',
-  '/assets/js/app.js',
-  'https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap',
-  'https://unpkg.com/aos@2.3.1/dist/aos.css',
-  'https://unpkg.com/lucide@latest/dist/umd/lucide.js',
-  'https://unpkg.com/aos@2.3.1/dist/aos.js'
+  '/artifacts.json',
+  '/manifest.json',
+  '/components/privacy-policy.html',
+  '/components/disclaimer.html',
+  '/components/contact.html',
+  '/components/about.html',
+  '/components/cdma.html',
+  '/sitemap.xml'
 ];
 
-// Install event - cache resources
+// install
 self.addEventListener('install', event => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => {
-        console.log('Opened cache');
-        return cache.addAll(urlsToCache);
-      })
+    caches.open(STATIC_CACHE)
+      .then(cache => cache.addAll(PRECACHE_URLS))
   );
 });
 
-// Activate event - clean up old caches
+// activate & cleanup
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(cacheNames => {
-      return Promise.all(
-        cacheNames.map(cacheName => {
-          if (cacheName !== CACHE_NAME) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+    caches.keys().then(keys => Promise.all(
+      keys.filter(key => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+          .map(key => caches.delete(key))
+    ))
   );
+  self.clients.claim();
 });
 
-// Fetch event - serve from cache or network
+// fetch: cache-first for static, network-first for runtime json
 self.addEventListener('fetch', event => {
-  event.respondWith(
-    caches.match(event.request)
-      .then(response => {
-        // Return cached version or fetch from network
-        if (response) {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Always respond to navigation with cached index.html (app shell)
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      caches.match('/index.html').then(res => res || fetch(request))
+    );
+    return;
+  }
+
+  // Artifacts JSON: network-first with fallback to cache
+  if (url.pathname.endsWith('/artifacts.json')) {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(RUNTIME_CACHE).then(cache => cache.put(request, copy));
           return response;
-        }
-        
-        return fetch(event.request).then(response => {
-          // Check if we received a valid response
-          if (!response || response.status !== 200 || response.type !== 'basic') {
-            return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // For other GET requests: cache-first
+  if (request.method === 'GET') {
+    event.respondWith(
+      caches.match(request).then(cached => {
+        if (cached) return cached;
+        return fetch(request).then(response => {
+          // store fonts and images to runtime cache
+          if (response && response.status === 200 && response.type !== 'opaque') {
+            const clone = response.clone();
+            caches.open(RUNTIME_CACHE).then(cache => cache.put(request, clone));
           }
-          
-          // Clone the response
-          const responseToCache = response.clone();
-          
-          caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(event.request, responseToCache);
-            });
-            
           return response;
+        }).catch(() => {
+          // fallback for images
+          if (request.destination === 'image') {
+            return caches.match('/assets/icons/icon-192.png');
+          }
         });
       })
-      .catch(() => {
-        // If both cache and network fail, show offline page
-        if (event.request.url.includes('artifacts.json')) {
-          return new Response(JSON.stringify({offline: true}), {
-            headers: {'Content-Type': 'application/json'}
-          });
-        }
-      })
-  );
+    );
+  }
 });
