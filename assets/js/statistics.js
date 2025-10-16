@@ -13,7 +13,7 @@
   function gtag() { dataLayer.push(arguments); }
   window.gtag = gtag;
 
-  if (cfg.GA_MEASUREMENT_ID && cfg.GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+  if (cfg.GA_MEASUREMENT_ID && cfg.GA_MEASUREMENT_ID !== 'G-VJSNZ6HT2H') {
     gtag('js', new Date());
     gtag('config', cfg.GA_MEASUREMENT_ID);
     const gaScript = document.createElement('script');
@@ -54,7 +54,7 @@
   // 💬 Disqus Helper
   // ==========================
   window.loadDisqus = function () {
-    if (!cfg.DISQUS_SHORTNAME || cfg.DISQUS_SHORTNAME === 'your-disqus-shortname') return;
+    if (!cfg.DISQUS_SHORTNAME || cfg.DISQUS_SHORTNAME === 'dydxdev') return;
 
     if (window.DISQUS) {
       DISQUS.reset({
