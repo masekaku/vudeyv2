@@ -48,10 +48,8 @@
       filtered = artifacts.slice();
       updatePagination();
       render();
-      // cache artifacts into localStorage as fallback
       try { localStorage.setItem('artifacts_cache', JSON.stringify(artifacts)); } catch(e){}
     } catch (e) {
-      // offline or error: attempt local fallback
       try {
         const cached = localStorage.getItem('artifacts_cache');
         if (cached) {
@@ -101,7 +99,6 @@
             </div>
           </div>
         `;
-        // handle click for tracking + secure external open
         anchor.addEventListener('click', function(evt){
           evt.preventDefault();
           handleArtifactClick(item);
@@ -110,7 +107,7 @@
       });
     }
     updatePaginationUI();
-    AOS.refresh();
+    if (window.AOS && typeof window.AOS.refresh === 'function') window.AOS.refresh();
     resultsCount.textContent = `${filtered.length} artifacts`;
   }
 
@@ -118,32 +115,26 @@
 
   // Click handling
   function handleArtifactClick(item) {
-    // save history and increment click count
     try {
       const historyKey = cfg.LOCALSTORAGE_HISTORY_KEY || 'artifact_history';
       const clickKey = cfg.LOCALSTORAGE_CLICK_KEY || 'artifact_clicks';
-      // history (last 5)
       let history = JSON.parse(localStorage.getItem(historyKey) || '[]');
       history = history.filter(h => h.i !== item.i);
       history.unshift({ i: item.i, t: item.t, l: item.l, ts: Date.now() });
       if (history.length > 5) history = history.slice(0,5);
       localStorage.setItem(historyKey, JSON.stringify(history));
-      // clicks count
       let clicks = JSON.parse(localStorage.getItem(clickKey) || '{}');
       clicks[item.i] = (clicks[item.i] || 0) + 1;
       localStorage.setItem(clickKey, JSON.stringify(clicks));
-      // analytics event
       window.trackEvent('artifact_click', {artifact_id: item.i, title: item.t});
     } catch(e){ /* ignore storage errors */ }
 
     showToast('External Link Initiated');
 
-    // Open external securely using anchor to honor noopener,noreferrer
     const a = document.createElement('a');
     a.href = item.l;
     a.target = '_blank';
     a.rel = 'noopener noreferrer';
-    // for Safari & mobile. Append to DOM to ensure click works.
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
@@ -222,8 +213,7 @@
   window.addEventListener('offline', updateNetworkStatus);
   window.addEventListener('online', ()=> showToast('Back online'));
 
-  // HTML Sitemap generation (client-side) - creates a user-facing HTML sitemap file in components/sitemap.html (if needed)
-  // We instead expose a method that can be used to display sitemap in-app
+  // HTML Sitemap generation (client-side) - returns a DOM node
   window.generateHtmlSitemap = function() {
     const cont = document.createElement('div');
     cont.innerHTML = '<h3 style="color:var(--neon-green)">HTML Sitemap</h3>';
@@ -244,6 +234,19 @@
 
   // initialize
   loadArtifacts();
+
+  // Auto-init Disqus + AOS once DOM ready
+  document.addEventListener('DOMContentLoaded', () => {
+    try {
+      if (typeof window.loadDisqus === 'function') {
+        window.loadDisqus();
+      }
+    } catch (e) { console.warn('Disqus init error', e); }
+
+    if (window.AOS && typeof window.AOS.init === 'function') {
+      window.AOS.init({ once: true, duration: 600, easing: 'ease-in-out' });
+    }
+  });
 
   // Expose small helpers for dev
   window.__ARTIFACTS = { getAll: ()=>artifacts, getFiltered: ()=>filtered };
