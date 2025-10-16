@@ -10,9 +10,9 @@
   <meta property="og:description" content="Curated video directory — terminal-styled, PWA-enabled, searchable & paginated." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="assets/icons/icon-512.png" />
-    <meta name="msvalidate.01" content="4DFFDED9DCDE1D531B01F5ED752AEDBE" />
+  <meta name="msvalidate.01" content="4DFFDED9DCDE1D531B01F5ED752AEDBE" />
   <title>THE ARTIFACT VIDEY | Curated Video Directory</title>
-  <base href="/">
+  <base href="/" />
 
   <!-- Fonts & CDN (Tailwind used only for base utility + convenience) -->
   <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -110,23 +110,20 @@
   <!-- AOS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
 
-  <!-- Google Analytics (GA4) placeholder -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-
-  <!-- Histats placeholder script (deferred) -->
-  <!-- Histats snippet would go here, replaced with your ID in statistics.js -->
-
-  <!-- Disqus - will be setup in statistics.js using shortname -->
-
-  <!-- App scripts -->
+  <!-- Config & App Scripts (order: config -> statistics -> app) -->
   <script src="assets/js/config.js"></script>
   <script src="assets/js/statistics.js"></script>
   <script src="assets/js/app.js"></script>
 
+  <!-- Google Analytics async script is inserted by statistics.js when configured -->
+
   <script>
     // Initialize UI small bits
     document.getElementById('year').textContent = new Date().getFullYear();
-    AOS.init({ once: true, duration: 600, easing: 'ease-in-out' });
+    // AOS init will be called from app.js as well, but a safe call here if needed:
+    if (window.AOS && typeof window.AOS.init === 'function') {
+      window.AOS.init({ once: true, duration: 600, easing: 'ease-in-out' });
+    }
   </script>
 
 </body>
